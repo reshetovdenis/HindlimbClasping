@@ -1,13 +1,20 @@
 package com.reshetovdenis.clasping;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+public class App extends Application {
+
+    @Override
+    public void start(Stage stage) {
+        Label label = new Label("Hello, JavaFX!");
+        Scene scene = new Scene(label, 400, 200);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
