@@ -1,7 +1,7 @@
-module com.reshetovdenis.clasping {
+module hellofx {
     requires javafx.controls;
     requires javafx.fxml;
 
-    opens com.reshetovdenis.clasping to javafx.fxml;
-    exports com.reshetovdenis.clasping;
+    opens com.denisreshetov to javafx.fxml;
+    exports com.denisreshetov;
 }
