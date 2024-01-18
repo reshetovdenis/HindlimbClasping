@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
@@ -19,6 +20,8 @@ import javafx.util.Duration;
 
 import java.io.File;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FXMLController {
     @FXML
@@ -39,6 +42,11 @@ public class FXMLController {
     private Button togglePlayPauseButton;
 
     private File projectDirectory = null;
+
+    @FXML
+    private ListView<String> videoListView; // ListView to display video names
+
+    private List<File> videoFiles = new ArrayList<>();
 
     @FXML
     private void handleOpenVideoAction() {
@@ -141,5 +149,25 @@ public class FXMLController {
     }
 
     public void handleOpenProject(ActionEvent actionEvent) {
+    }
+
+    @FXML
+    private void handleAddVideo() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Video Files");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Video Files", "*.mp4", "*.avi", "*.mov")
+        );
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
+        if (selectedFiles != null) {
+            videoFiles.addAll(selectedFiles);
+            updateVideoListView();
+        }
+    }
+    private void updateVideoListView() {
+        videoListView.getItems().clear();
+        for (File file : videoFiles) {
+            videoListView.getItems().add(file.getName());
+        }
     }
 }
