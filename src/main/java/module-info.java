@@ -1,4 +1,4 @@
-module hellofx {
+module hindlimbclasping {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.media;
