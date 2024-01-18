@@ -94,10 +94,11 @@ public class FXMLController {
 
         videoSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                if (videoSlider.isValueChanging()) {
+                if (videoSlider.isValueChanging() || videoSlider.isPressed()) {
                     if (mediaPlayer.getTotalDuration().greaterThan(Duration.ZERO))
                         mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
                 }
+
             }
         });
         setButtonIcon(togglePlayPauseButton, "play.png");
