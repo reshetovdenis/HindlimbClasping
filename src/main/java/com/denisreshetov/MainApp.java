@@ -7,16 +7,16 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;  // Import statement for Image
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.awt.Taskbar;
 import java.awt.Toolkit;
 import java.awt.Taskbar.Feature;
 
 public class MainApp extends Application {
+    private static Stage primaryStage;
 
     @Override
     public void start(Stage stage) throws Exception {
+        primaryStage = stage;
         Parent root = FXMLLoader.load(getClass().getResource("scene.fxml"));
 
         Scene scene = new Scene(root);
@@ -42,6 +42,12 @@ public class MainApp extends Application {
         stage.setScene(scene);
         stage.show();
 
+    }
+
+    public static void showProjectName(String title) {
+        if (primaryStage != null) {
+            primaryStage.setTitle("Hindlimb Clasping Analysis" + ": " + title);
+        }
     }
 
     public static void main(String[] args) {

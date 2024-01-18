@@ -1,6 +1,7 @@
 package com.denisreshetov;
 
 import javafx.beans.binding.Bindings;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,6 +13,7 @@ import javafx.scene.media.MediaView;
 import javafx.scene.control.Slider;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -35,6 +37,8 @@ public class FXMLController {
 
     @FXML
     private Button togglePlayPauseButton;
+
+    private File projectDirectory = null;
 
     @FXML
     private void handleOpenVideoAction() {
@@ -123,4 +127,19 @@ public class FXMLController {
         setButtonIcon(togglePlayPauseButton, "play.png");
     }
 
+    public void handleProject(ActionEvent actionEvent) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Select Project Directory");
+        projectDirectory = directoryChooser.showDialog(null);
+
+        if (projectDirectory != null) {
+            MainApp.showProjectName(projectDirectory.getName());
+            System.out.println("Selected Directory: " + projectDirectory.getAbsolutePath());
+        } else {
+            System.out.println("No Directory Selected");
+        }
+    }
+
+    public void handleOpenProject(ActionEvent actionEvent) {
+    }
 }

@@ -9,8 +9,24 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.control.Label?>
-<VBox fx:id="mainContainer" spacing="10" alignment="CENTER" prefHeight="800" prefWidth="1200" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denisreshetov.FXMLController">
-    <MediaView fx:id="mediaView" fitWidth="500" fitHeight="300" />
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denisreshetov.FXMLController">
+    <!-- Menu Bar at the top -->
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="New/Open Project" onAction="#handleProject"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <!-- Existing VBox layout in the center -->
+    <center>
+        <VBox fx:id="mainContainer" spacing="10" alignment="CENTER" prefHeight="800" prefWidth="1200">
+            <MediaView fx:id="mediaView" fitWidth="500" fitHeight="300" />
     <HBox alignment="CENTER" spacing="10">
         <Button fx:id="togglePlayPauseButton" onAction="#handleTogglePlayPause">
             <graphic>
@@ -26,6 +42,6 @@
         <Button layoutX="126" layoutY="160" onAction="#handleOpenVideoAction" text="Open Video" styleClass="open-button"/>
         <Label fx:id="videoName"/>
     </VBox>
-
-
-</VBox>
+        </VBox>
+    </center>
+</BorderPane>
