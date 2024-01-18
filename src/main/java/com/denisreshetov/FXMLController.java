@@ -2,6 +2,9 @@ package com.denisreshetov;
 
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -20,6 +23,9 @@ public class FXMLController {
     private Slider videoSlider;
 
     private MediaPlayer mediaPlayer;
+
+    @FXML
+    private Button togglePlayPauseButton;
 
     @FXML
     private void handleOpenVideoAction() {
@@ -43,18 +49,25 @@ public class FXMLController {
     }
 
 
+
+
     @FXML
-    private void handlePlayAction() {
+    private void handleTogglePlayPause() {
+        setButtonIcon(togglePlayPauseButton, "play.png");
         if (mediaPlayer != null) {
-            mediaPlayer.play();
+            if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+                mediaPlayer.pause();
+                setButtonIcon(togglePlayPauseButton, "play.png");
+            } else {
+                mediaPlayer.play();
+                setButtonIcon(togglePlayPauseButton, "pause.png");
+            }
         }
     }
 
-    @FXML
-    private void handlePauseAction() {
-        if (mediaPlayer != null) {
-            mediaPlayer.pause();
-        }
+    private void setButtonIcon(Button button, String iconFileName) {
+        ImageView icon = new ImageView(new Image(getClass().getResourceAsStream("/images/" + iconFileName)));
+        button.setGraphic(icon);
     }
 
     private void initializeVideoPlayer() {
@@ -77,6 +90,7 @@ public class FXMLController {
                 }
             }
         });
+        setButtonIcon(togglePlayPauseButton, "play.png");
     }
 
 }

@@ -1,3 +1,18 @@
+.root {
+    -fx-font-family: 'Arial';
+    -fx-background-color: #333;
+}
+
 .button {
-    -fx-font-weight: bold;
+    -fx-background-color: #555;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.button:hover {
+    -fx-background-color: #666;
+}
+
+#videoSlider {
+    -fx-control-inner-background: #666;
 }
