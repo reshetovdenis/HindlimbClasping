@@ -27,7 +27,11 @@
             <padding>
                 <Insets top="10" right="0" bottom="10" left="0"/>
             </padding>
-            <Button fx:id="addVideoButton" text="+ Add videos" onAction="#handleAddVideo" styleClass="wide-button" />
+            <HBox alignment="CENTER" spacing="10">
+                <Label text="Videos:" />
+                <Button fx:id="addVideoButton" text="+" onAction="#handleAddVideo" />
+                <Button fx:id="removeVideoButton" text="-" onAction="#handleRemoveVideo" />
+            </HBox>
             <ListView fx:id="videoListView" VBox.vgrow="ALWAYS"/>
         </VBox>
     </left>
@@ -48,8 +52,6 @@
                 <Label fx:id="timeLabel" text="0.0 s"/>
             </HBox>
             <VBox alignment="CENTER" spacing="10">
-                <Button layoutX="126" layoutY="160" onAction="#handleOpenVideoAction" text="Open Video"
-                        styleClass="wide-button"/>
                 <Label fx:id="videoName"/>
             </VBox>
         </VBox>

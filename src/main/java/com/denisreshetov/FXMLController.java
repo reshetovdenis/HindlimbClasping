@@ -48,13 +48,22 @@ public class FXMLController {
 
     private List<File> videoFiles = new ArrayList<>();
 
-    @FXML
-    private void handleOpenVideoAction() {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter(
-                "Select a Video File", "*.MP4", "*.mp4");
-        fileChooser.getExtensionFilters().add(filter);
-        File file = fileChooser.showOpenDialog(null);
+    private File selectedVideo = null;
+
+    public void initialize() {
+        videoListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                int index = videoListView.getSelectionModel().getSelectedIndex();
+                File selectedFile = videoFiles.get(index);
+                selectedVideo = selectedFile;
+                setVideo(selectedFile);
+            }
+        });
+    }
+
+
+
+    private void setVideo(File file) {
         if (file != null) {
             String path = file.toURI().toString();
             Media media = new Media(path);
@@ -66,9 +75,11 @@ public class FXMLController {
             });
             mediaView.setMediaPlayer(mediaPlayer);
             videoName.setText(file.getName());
+        } else {
+            mediaView.setMediaPlayer(null);
+            videoName.setText("");
         }
     }
-
 
     @FXML
     private void handleTogglePlayPause() {
@@ -169,5 +180,20 @@ public class FXMLController {
         for (File file : videoFiles) {
             videoListView.getItems().add(file.getName());
         }
+        if(videoFiles.size() > 0){
+            videoListView.getSelectionModel().select(0);
+        }
+    }
+
+    public void handleRemoveVideo(ActionEvent actionEvent) {
+        if(selectedVideo != null){
+
+            videoFiles.remove(selectedVideo);
+            if(videoFiles.size() == 0){
+                setVideo(null);
+            }
+            updateVideoListView();
+        }
+
     }
 }
