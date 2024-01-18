@@ -14,6 +14,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+
 import java.io.File;
 import java.text.DecimalFormat;
 
@@ -57,8 +58,6 @@ public class FXMLController {
     }
 
 
-
-
     @FXML
     private void handleTogglePlayPause() {
         setButtonIcon(togglePlayPauseButton, "play.png");
@@ -78,13 +77,22 @@ public class FXMLController {
         button.setGraphic(icon);
     }
 
+    private void updateTimeLabel(Duration duration) {
+        String currentTime = new DecimalFormat("0.0").format(duration.toSeconds());
+        timeLabel.setText(currentTime + " s");
+    }
+
+    private void restoreDefaults() {
+        updateTimeLabel(new Duration(0));
+    }
+
     private void initializeVideoPlayer() {
+        restoreDefaults();
         mediaPlayer.currentTimeProperty().addListener(new ChangeListener<Duration>() {
             @Override
             public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
                 videoSlider.setValue(newValue.toSeconds());
-                String currentTime = new DecimalFormat("0.0").format(newValue.toSeconds());
-                timeLabel.setText(currentTime + " s");
+                updateTimeLabel(newValue);
             }
         });
 
@@ -92,13 +100,24 @@ public class FXMLController {
                 () -> mediaPlayer.getTotalDuration().toSeconds(),
                 mediaPlayer.totalDurationProperty()));
 
+        // Set initial seek to start position when MediaPlayer is ready
+        if (mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
+            mediaPlayer.seek(Duration.seconds(0));
+        }
+
         videoSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                if (videoSlider.isValueChanging() || videoSlider.isPressed()) {
-                    if (mediaPlayer.getTotalDuration().greaterThan(Duration.ZERO))
-                        mediaPlayer.seek(Duration.seconds(newValue.doubleValue()));
-                }
+                // Update timeLabel whenever the slider value changes
+                Duration newDuration = Duration.seconds(newValue.doubleValue());
+                updateTimeLabel(newDuration);
 
+                if (videoSlider.isValueChanging() || videoSlider.isPressed()) {
+                    // Seek in mediaPlayer only if it is in a state to handle it
+                    if (mediaPlayer.getStatus().compareTo(MediaPlayer.Status.READY) >= 0 &&
+                            mediaPlayer.getTotalDuration().greaterThan(Duration.ZERO)) {
+                        mediaPlayer.seek(newDuration);
+                    }
+                }
             }
         });
         setButtonIcon(togglePlayPauseButton, "play.png");
