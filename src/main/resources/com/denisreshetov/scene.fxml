@@ -4,8 +4,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.media.MediaView?>
-<?import javafx.geometry.Pos?>
-
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.control.Label?>
@@ -18,14 +17,17 @@
     <!-- Menu Bar at the top -->
     <top>
         <MenuBar>
-            <Menu text="File">
+            <Menu text="Project">
                 <MenuItem text="New/Open Project" onAction="#handleProject"/>
             </Menu>
         </MenuBar>
     </top>
     <left>
-        <VBox spacing="10">
-            <Button fx:id="addVideoButton" text="Add videos" onAction="#handleAddVideo" styleClass="wide-button"/>
+        <VBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="0" bottom="10" left="0"/>
+            </padding>
+            <Button fx:id="addVideoButton" text="+ Add videos" onAction="#handleAddVideo" styleClass="wide-button" />
             <ListView fx:id="videoListView" VBox.vgrow="ALWAYS"/>
         </VBox>
     </left>
