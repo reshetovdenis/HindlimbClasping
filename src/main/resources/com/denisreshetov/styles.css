@@ -6,6 +6,11 @@
     -fx-background-color: #555;
     -fx-text-fill: white;
     -fx-font-size: 14px;
+    -fx-pref-width: 50px;
+}
+
+.open-button {
+    -fx-pref-width: 100px;
 }
 
 .button:hover {

@@ -21,8 +21,8 @@
             </graphic>
         </Button>
         <Slider fx:id="videoSlider" prefWidth="300"/>
-        <Label fx:id="timeLabel" />
+        <Label fx:id="timeLabel" text="0.0 s"/>
     </HBox>
 
-    <Button layoutX="126" layoutY="160" onAction="#handleOpenVideoAction" text="Open Video" />
+    <Button layoutX="126" layoutY="160" onAction="#handleOpenVideoAction" text="Open Video" styleClass="open-button"/>
 </VBox>
