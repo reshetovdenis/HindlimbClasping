@@ -3,11 +3,15 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.media.MediaView?>
+<?import javafx.scene.control.Slider?>
 
 <AnchorPane id="AnchorPane" prefHeight="400" prefWidth="600" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.denisreshetov.FXMLController">
     <children>
         <Button layoutX="126" layoutY="160" onAction="#handleOpenVideoAction" text="Open Video" />
         <Label fx:id="label" layoutX="126" layoutY="120" minHeight="16" minWidth="69" />
         <MediaView fx:id="mediaView" layoutX="50" layoutY="200" fitWidth="500" fitHeight="300" />
+        <Button fx:id="playButton" layoutX="50" layoutY="450" text="Play" onAction="#handlePlayAction"/>
+        <Button fx:id="pauseButton" layoutX="100" layoutY="450" text="Pause" onAction="#handlePauseAction"/>
+        <Slider fx:id="videoSlider" layoutX="150" layoutY="450" prefWidth="400"/>
     </children>
 </AnchorPane>
