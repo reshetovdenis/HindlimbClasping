@@ -27,6 +27,9 @@ public class FXMLController {
     @FXML
     private Label timeLabel;
 
+    @FXML
+    private Label videoName;
+
     private MediaPlayer mediaPlayer;
 
     @FXML
@@ -49,6 +52,7 @@ public class FXMLController {
                 }
             });
             mediaView.setMediaPlayer(mediaPlayer);
+            videoName.setText(file.getName());
         }
     }
 
