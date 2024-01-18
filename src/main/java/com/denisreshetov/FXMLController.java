@@ -3,6 +3,7 @@ package com.denisreshetov;
 import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
@@ -14,6 +15,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 import java.io.File;
+import java.text.DecimalFormat;
 
 public class FXMLController {
     @FXML
@@ -21,6 +23,9 @@ public class FXMLController {
 
     @FXML
     private Slider videoSlider;
+
+    @FXML
+    private Label timeLabel;
 
     private MediaPlayer mediaPlayer;
 
@@ -74,6 +79,8 @@ public class FXMLController {
             @Override
             public void changed(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
                 videoSlider.setValue(newValue.toSeconds());
+                String currentTime = new DecimalFormat("0.0").format(newValue.toSeconds());
+                timeLabel.setText(currentTime + " s");
             }
         });
 

@@ -8,6 +8,7 @@
 
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.image.Image?>
+<?import javafx.scene.control.Label?>
 <VBox fx:id="mainContainer" spacing="10" alignment="CENTER" prefHeight="500" prefWidth="600" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denisreshetov.FXMLController">
     <MediaView fx:id="mediaView" fitWidth="500" fitHeight="300" />
 
@@ -20,6 +21,7 @@
             </graphic>
         </Button>
         <Slider fx:id="videoSlider" prefWidth="300"/>
+        <Label fx:id="timeLabel" />
     </HBox>
 
     <Button layoutX="126" layoutY="160" onAction="#handleOpenVideoAction" text="Open Video" />
