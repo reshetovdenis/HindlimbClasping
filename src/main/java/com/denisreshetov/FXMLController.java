@@ -3,15 +3,12 @@ package com.denisreshetov;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
-import javafx.scene.control.Slider;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.stage.DirectoryChooser;
@@ -19,7 +16,6 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.io.File;
-import java.io.IOException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -61,6 +57,12 @@ public class FXMLController {
     @FXML
     private Button removeVideoButton;
 
+    @FXML
+    private TextField mouseIdInput;
+
+    @FXML
+    private Button submitMouseIdButton;
+
     private File projectDirectory = null;
 
     @FXML
@@ -98,6 +100,17 @@ public class FXMLController {
         } else {
             mediaView.setMediaPlayer(null);
             videoName.setText("");
+        }
+    }
+
+    @FXML
+    private void handleSubmitMouseId(ActionEvent event) {
+        String mouseId = mouseIdInput.getText();
+        if (mouseId.isEmpty()) {
+            return;
+        }
+        if (mediaPlayer != null) {
+            Duration currentTime = mediaPlayer.getCurrentTime();
         }
     }
 
