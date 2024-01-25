@@ -19,6 +19,20 @@ import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -163,8 +177,88 @@ public class FXMLController {
             MainApp.showProjectName(projectDirectory.getName());
             addVideoButton.setDisable(false);
             removeVideoButton.setDisable(false);
+
+            File xmlFile = new File(projectDirectory, "clasping.xml");
+            if (xmlFile.exists()) {
+                videoFiles.clear();
+                loadVideosFromProjectXML(xmlFile);
+                updateVideoListView();
+            } else {
+                // Handle the case where the XML file does not exist in the directory
+            }
+
+            // Create snapshots directory
+            File snapshotsDir = new File(projectDirectory, "snapshots");
+            if (!snapshotsDir.exists()) {
+                boolean isDirCreated = snapshotsDir.mkdir();
+                if (!isDirCreated) {
+                    // Handle the failure of directory creation
+                }
+            }
         }
     }
+
+    private void writeDefaultXMLContent(File file, List<File> videos) {
+        try {
+            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+            Document document = documentBuilder.newDocument();
+            Element root = document.createElement("project");
+            document.appendChild(root);
+
+            // Add video elements
+            for (File video : videos) {
+                Element videoElement = document.createElement("video");
+                videoElement.appendChild(document.createTextNode(video.getName()));
+                root.appendChild(videoElement);
+            }
+
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource domSource = new DOMSource(document);
+            StreamResult streamResult = new StreamResult(file);
+
+            transformer.transform(domSource, streamResult);
+        } catch (ParserConfigurationException | TransformerException e) {
+            e.printStackTrace();
+            // Handle exceptions related to XML writing
+        }
+    }
+
+    private void updateProjectXML() {
+        if (projectDirectory != null) {
+            File xmlFile = new File(projectDirectory, "clasping.xml");
+            writeDefaultXMLContent(xmlFile, videoFiles);
+        }
+    }
+
+    private void loadVideosFromProjectXML(File xmlFile) {
+        if (xmlFile.exists()) {
+            try {
+                DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(xmlFile);
+                document.getDocumentElement().normalize();
+
+                NodeList videoList = document.getElementsByTagName("video");
+                for (int i = 0; i < videoList.getLength(); i++) {
+                    Node videoNode = videoList.item(i);
+                    if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element videoElement = (Element) videoNode;
+                        String videoName = videoElement.getTextContent();
+                        File videoFile = new File(projectDirectory, videoName);
+                        if (videoFile.exists()) {
+                            videoFiles.add(videoFile);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Handle exceptions related to XML reading
+            }
+        }
+    }
+
 
     @FXML
     private void handleAddVideo() {
@@ -177,6 +271,7 @@ public class FXMLController {
         if (selectedFiles != null) {
             videoFiles.addAll(selectedFiles);
             updateVideoListView();
+            updateProjectXML();
         }
     }
     private void updateVideoListView() {
@@ -197,6 +292,7 @@ public class FXMLController {
                 setVideo(null);
             }
             updateVideoListView();
+            updateProjectXML();
         }
 
     }
