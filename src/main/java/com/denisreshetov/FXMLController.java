@@ -30,10 +30,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FXMLController {
     @FXML
@@ -384,16 +381,24 @@ public class FXMLController {
     }
 
     public void handleRemoveVideo(ActionEvent actionEvent) {
-        //TODO update mice ids
         if(selectedVideo != null){
             videoFiles.remove(selectedVideo);
             if(videoFiles.size() == 0){
                 setVideo(null);
             }
+            Set<String> obsoleteMiceIds = fileToMouseIdMap.get(selectedVideo).keySet();
+            miceIds.removeAll(obsoleteMiceIds);
+            Map<String, Duration> mouseData = fileToMouseIdMap.remove(selectedVideo);
+            if (mouseData != null) {
+                for (String mouseId : mouseData.keySet()) {
+                    miceIds.remove(mouseId);
+                    mouseIdToFileMap.remove(mouseId);
+                }
+            }
             updateVideoListView();
+            updateMiceListView();
             updateProjectXML();
         }
-
     }
 
     public void handleRemoveMouse(ActionEvent actionEvent) {
