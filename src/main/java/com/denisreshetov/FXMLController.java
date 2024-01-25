@@ -186,6 +186,8 @@ public class FXMLController {
         setButtonIcon(togglePlayPauseButton, "play.png");
         videoSlider.setDisable(false);
         togglePlayPauseButton.setDisable(false);
+        mouseIdInput.setDisable(false);
+        submitMouseIdButton.setDisable(false);
     }
 
     public void handleProject(ActionEvent actionEvent) {

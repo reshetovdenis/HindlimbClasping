@@ -56,11 +56,11 @@
                 <Label fx:id="videoName"/>
                 <HBox alignment="CENTER" spacing="10">
                     <TextField fx:id="mouseIdInput"
-                               promptText="Enter Mouse ID" />
+                               promptText="Enter Mouse ID" disable="true"/>
                     <Button fx:id="submitMouseIdButton"
                             text="Set start"
                             onAction="#handleSubmitMouseId"
-                            styleClass="wide-button"/>
+                            styleClass="wide-button" disable="true"/>
                 </HBox>
             </VBox>
         </VBox>
