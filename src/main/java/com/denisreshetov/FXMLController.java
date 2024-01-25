@@ -230,7 +230,7 @@ public class FXMLController {
             // Iterate over videoFiles to maintain order
             for (File videoFile : videoFiles) {
                 Element videoElement = document.createElement("video");
-                videoElement.setAttribute("name", videoFile.getPath());
+                videoElement.setAttribute("path", videoFile.getPath());
 
                 // Check if there is mouse data for this video
                 Map<String, Duration> mouseData = fileToMouseIdMap.get(videoFile);
@@ -278,8 +278,8 @@ public class FXMLController {
                     Node videoNode = videoList.item(i);
                     if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element videoElement = (Element) videoNode;
-                        String videoName = videoElement.getAttribute("name");
-                        File videoFile = new File(projectDirectory, videoName);
+                        String videoPath = videoElement.getAttribute("path");
+                        File videoFile = new File(videoPath);
 
                         Map<String, Duration> mouseIdMap = new HashMap<>();
                         NodeList mouseList = videoElement.getElementsByTagName("mouse");
@@ -316,7 +316,7 @@ public class FXMLController {
                     Node videoNode = videoList.item(i);
                     if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element videoElement = (Element) videoNode;
-                        String videoName = videoElement.getAttribute("name");
+                        String videoName = videoElement.getAttribute("path");
                         File videoFile = new File(videoName);
                         if (videoFile.exists()) {
                             videoFiles.add(videoFile);
