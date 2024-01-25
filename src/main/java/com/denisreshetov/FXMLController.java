@@ -31,7 +31,9 @@ import org.w3c.dom.NodeList;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FXMLController {
     @FXML
@@ -70,6 +72,9 @@ public class FXMLController {
 
     private List<File> videoFiles = new ArrayList<>();
 
+    private Map<File, Map<String, Duration>> fileToMouseIdMap = new HashMap<>();
+
+
     private File selectedVideo = null;
 
     public void initialize() {
@@ -106,11 +111,13 @@ public class FXMLController {
     @FXML
     private void handleSubmitMouseId(ActionEvent event) {
         String mouseId = mouseIdInput.getText();
-        if (mouseId.isEmpty()) {
+        if (mouseId.isEmpty() || selectedVideo == null) {
             return;
         }
         if (mediaPlayer != null) {
             Duration currentTime = mediaPlayer.getCurrentTime();
+            fileToMouseIdMap.computeIfAbsent(selectedVideo, k -> new HashMap<>()).put(mouseId, currentTime);
+            updateProjectXML(); // Call this method to update the XML file
         }
     }
 
@@ -195,6 +202,7 @@ public class FXMLController {
             if (xmlFile.exists()) {
                 videoFiles.clear();
                 loadVideosFromProjectXML(xmlFile);
+                loadMouseIdMapFromXML(xmlFile);
                 updateVideoListView();
             } else {
                 // Handle the case where the XML file does not exist in the directory
@@ -211,7 +219,7 @@ public class FXMLController {
         }
     }
 
-    private void writeDefaultXMLContent(File file, List<File> videos) {
+    private void writeDefaultXMLContent(File file) {
         try {
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -219,10 +227,22 @@ public class FXMLController {
             Element root = document.createElement("project");
             document.appendChild(root);
 
-            // Add video elements
-            for (File video : videos) {
+            // Iterate over videoFiles to maintain order
+            for (File videoFile : videoFiles) {
                 Element videoElement = document.createElement("video");
-                videoElement.appendChild(document.createTextNode(video.getName()));
+                videoElement.setAttribute("name", videoFile.getPath());
+
+                // Check if there is mouse data for this video
+                Map<String, Duration> mouseData = fileToMouseIdMap.get(videoFile);
+                if (mouseData != null) {
+                    for (Map.Entry<String, Duration> mouseEntry : mouseData.entrySet()) {
+                        Element mouseElement = document.createElement("mouse");
+                        mouseElement.setAttribute("id", mouseEntry.getKey());
+                        mouseElement.setAttribute("time", String.valueOf(mouseEntry.getValue().toMillis()));
+                        videoElement.appendChild(mouseElement);
+                    }
+                }
+
                 root.appendChild(videoElement);
             }
 
@@ -234,14 +254,52 @@ public class FXMLController {
             transformer.transform(domSource, streamResult);
         } catch (ParserConfigurationException | TransformerException e) {
             e.printStackTrace();
-            // Handle exceptions related to XML writing
+            // Handle exceptions
         }
     }
+
 
     private void updateProjectXML() {
         if (projectDirectory != null) {
             File xmlFile = new File(projectDirectory, "clasping.xml");
-            writeDefaultXMLContent(xmlFile, videoFiles);
+            writeDefaultXMLContent(xmlFile);
+        }
+    }
+    private void loadMouseIdMapFromXML(File xmlFile) {
+        if (xmlFile.exists()) {
+            try {
+                DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(xmlFile);
+                document.getDocumentElement().normalize();
+
+                NodeList videoList = document.getElementsByTagName("video");
+                for (int i = 0; i < videoList.getLength(); i++) {
+                    Node videoNode = videoList.item(i);
+                    if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element videoElement = (Element) videoNode;
+                        String videoName = videoElement.getAttribute("name");
+                        File videoFile = new File(projectDirectory, videoName);
+
+                        Map<String, Duration> mouseIdMap = new HashMap<>();
+                        NodeList mouseList = videoElement.getElementsByTagName("mouse");
+                        for (int j = 0; j < mouseList.getLength(); j++) {
+                            Node mouseNode = mouseList.item(j);
+                            if (mouseNode.getNodeType() == Node.ELEMENT_NODE) {
+                                Element mouseElement = (Element) mouseNode;
+                                String id = mouseElement.getAttribute("id");
+                                Duration time = Duration.millis(Double.parseDouble(mouseElement.getAttribute("time")));
+                                mouseIdMap.put(id, time);
+                            }
+                        }
+
+                        fileToMouseIdMap.put(videoFile, mouseIdMap);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Handle exceptions
+            }
         }
     }
 
@@ -258,8 +316,8 @@ public class FXMLController {
                     Node videoNode = videoList.item(i);
                     if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element videoElement = (Element) videoNode;
-                        String videoName = videoElement.getTextContent();
-                        File videoFile = new File(projectDirectory, videoName);
+                        String videoName = videoElement.getAttribute("name");
+                        File videoFile = new File(videoName);
                         if (videoFile.exists()) {
                             videoFiles.add(videoFile);
                         }
