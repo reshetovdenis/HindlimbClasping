@@ -373,7 +373,9 @@ public class FXMLController {
     private void updateMiceListView() {
         miceListView.getItems().clear();
         for (String id : miceIds.stream().sorted().toList()) {
-            miceListView.getItems().add(id);
+            Duration time = fileToMouseIdMap.get(selectedVideo).get(id);
+            String label = id + ": " + time.toString();
+            miceListView.getItems().add(label);
         }
         if(miceIds.size() > 0){
             miceListView.getSelectionModel().select(0);
