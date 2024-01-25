@@ -36,6 +36,18 @@
             <ListView fx:id="videoListView" VBox.vgrow="ALWAYS"/>
         </VBox>
     </left>
+    <right>
+        <VBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="0" bottom="10" left="0"/>
+            </padding>
+            <HBox alignment="CENTER" spacing="10">
+                <Label text="Mice:" />
+                <Button fx:id="removeMouseButton" text="-" onAction="#handleRemoveMouse" disable="true"/>
+            </HBox>
+            <ListView fx:id="miceListView" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </right>
 
     <!-- Existing VBox layout in the center -->
     <center>

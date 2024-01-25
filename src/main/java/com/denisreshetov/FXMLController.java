@@ -60,6 +60,9 @@ public class FXMLController {
     private Button removeVideoButton;
 
     @FXML
+    private Button removeMouseButton;
+
+    @FXML
     private TextField mouseIdInput;
 
     @FXML
@@ -68,11 +71,16 @@ public class FXMLController {
     private File projectDirectory = null;
 
     @FXML
-    private ListView<String> videoListView; // ListView to display video names
+    private ListView<String> videoListView;
+    @FXML
+    private ListView<String> miceListView;
 
     private List<File> videoFiles = new ArrayList<>();
 
     private Map<File, Map<String, Duration>> fileToMouseIdMap = new HashMap<>();
+
+    private List<String> miceIds = new ArrayList<>();
+    private Map<String, File> mouseIdToFileMap = new HashMap<>();
 
 
     private File selectedVideo = null;
@@ -117,6 +125,9 @@ public class FXMLController {
         if (mediaPlayer != null) {
             Duration currentTime = mediaPlayer.getCurrentTime();
             fileToMouseIdMap.computeIfAbsent(selectedVideo, k -> new HashMap<>()).put(mouseId, currentTime);
+            mouseIdToFileMap.put(mouseId, selectedVideo);
+            miceIds.add(mouseId);
+            updateMiceListView();
             updateProjectXML(); // Call this method to update the XML file
         }
     }
@@ -199,6 +210,7 @@ public class FXMLController {
             MainApp.showProjectName(projectDirectory.getName());
             addVideoButton.setDisable(false);
             removeVideoButton.setDisable(false);
+            removeMouseButton.setDisable(false);
 
             File xmlFile = new File(projectDirectory, "clasping.xml");
             if (xmlFile.exists()) {
@@ -206,6 +218,7 @@ public class FXMLController {
                 loadVideosFromProjectXML(xmlFile);
                 loadMouseIdMapFromXML(xmlFile);
                 updateVideoListView();
+                updateMiceListView();
             } else {
                 // Handle the case where the XML file does not exist in the directory
             }
@@ -221,7 +234,7 @@ public class FXMLController {
         }
     }
 
-    private void writeDefaultXMLContent(File file) {
+    private void writeXMLContent(File file) {
         try {
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -264,11 +277,12 @@ public class FXMLController {
     private void updateProjectXML() {
         if (projectDirectory != null) {
             File xmlFile = new File(projectDirectory, "clasping.xml");
-            writeDefaultXMLContent(xmlFile);
+            writeXMLContent(xmlFile);
         }
     }
     private void loadMouseIdMapFromXML(File xmlFile) {
         if (xmlFile.exists()) {
+            fileToMouseIdMap = new HashMap<>();
             try {
                 DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -292,6 +306,8 @@ public class FXMLController {
                                 String id = mouseElement.getAttribute("id");
                                 Duration time = Duration.millis(Double.parseDouble(mouseElement.getAttribute("time")));
                                 mouseIdMap.put(id, time);
+                                miceIds.add(id);
+                                mouseIdToFileMap.put(id, videoFile);
                             }
                         }
 
@@ -306,6 +322,7 @@ public class FXMLController {
     }
 
     private void loadVideosFromProjectXML(File xmlFile) {
+        videoFiles = new ArrayList<>();
         if (xmlFile.exists()) {
             try {
                 DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
@@ -356,10 +373,19 @@ public class FXMLController {
             videoListView.getSelectionModel().select(0);
         }
     }
+    private void updateMiceListView() {
+        miceListView.getItems().clear();
+        for (String id : miceIds.stream().sorted().toList()) {
+            miceListView.getItems().add(id);
+        }
+        if(miceIds.size() > 0){
+            miceListView.getSelectionModel().select(0);
+        }
+    }
 
     public void handleRemoveVideo(ActionEvent actionEvent) {
+        //TODO update mice ids
         if(selectedVideo != null){
-
             videoFiles.remove(selectedVideo);
             if(videoFiles.size() == 0){
                 setVideo(null);
@@ -368,5 +394,8 @@ public class FXMLController {
             updateProjectXML();
         }
 
+    }
+
+    public void handleRemoveMouse(ActionEvent actionEvent) {
     }
 }
