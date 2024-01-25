@@ -29,8 +29,8 @@
             </padding>
             <HBox alignment="CENTER" spacing="10">
                 <Label text="Videos:" />
-                <Button fx:id="addVideoButton" text="+" onAction="#handleAddVideo" />
-                <Button fx:id="removeVideoButton" text="-" onAction="#handleRemoveVideo" />
+                <Button fx:id="addVideoButton" text="+" onAction="#handleAddVideo" disable="true"/>
+                <Button fx:id="removeVideoButton" text="-" onAction="#handleRemoveVideo" disable="true"/>
             </HBox>
             <ListView fx:id="videoListView" VBox.vgrow="ALWAYS"/>
         </VBox>
@@ -41,14 +41,14 @@
         <VBox fx:id="mainContainer" spacing="10" alignment="CENTER" prefHeight="800" prefWidth="1200">
             <MediaView fx:id="mediaView" fitWidth="500" fitHeight="300"/>
             <HBox alignment="CENTER" spacing="10">
-                <Button fx:id="togglePlayPauseButton" onAction="#handleTogglePlayPause">
+                <Button fx:id="togglePlayPauseButton" onAction="#handleTogglePlayPause" disable="true">
                     <graphic>
                         <ImageView>
                             <Image url="@../../images/play.png"/>
                         </ImageView>
                     </graphic>
                 </Button>
-                <Slider fx:id="videoSlider" prefWidth="300"/>
+                <Slider fx:id="videoSlider" prefWidth="300" disable="true"/>
                 <Label fx:id="timeLabel" text="0.0 s"/>
             </HBox>
             <VBox alignment="CENTER" spacing="10">

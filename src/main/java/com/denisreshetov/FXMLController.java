@@ -41,6 +41,12 @@ public class FXMLController {
     @FXML
     private Button togglePlayPauseButton;
 
+    @FXML
+    private Button addVideoButton;
+
+    @FXML
+    private Button removeVideoButton;
+
     private File projectDirectory = null;
 
     @FXML
@@ -144,6 +150,8 @@ public class FXMLController {
             }
         });
         setButtonIcon(togglePlayPauseButton, "play.png");
+        videoSlider.setDisable(false);
+        togglePlayPauseButton.setDisable(false);
     }
 
     public void handleProject(ActionEvent actionEvent) {
@@ -153,13 +161,9 @@ public class FXMLController {
 
         if (projectDirectory != null) {
             MainApp.showProjectName(projectDirectory.getName());
-            System.out.println("Selected Directory: " + projectDirectory.getAbsolutePath());
-        } else {
-            System.out.println("No Directory Selected");
+            addVideoButton.setDisable(false);
+            removeVideoButton.setDisable(false);
         }
-    }
-
-    public void handleOpenProject(ActionEvent actionEvent) {
     }
 
     @FXML
