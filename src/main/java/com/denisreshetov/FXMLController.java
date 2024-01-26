@@ -153,6 +153,7 @@ public class FXMLController {
 
     private void setSelectedMouse(String mouseId) {
         this.selectedMouse = mouseId;
+        mouseIdInput.setText(mouseId);
     }
 
 
@@ -188,8 +189,9 @@ public class FXMLController {
                 mouseIdToFileMap.put(mouseId, selectedVideo);
                 miceIds.add(mouseId);
             }
+            mouseIdInput.clear();
             updateMiceTableView();
-            updateProjectXML(); // Call this method to update the XML file
+            updateProjectXML();
         }
     }
 
