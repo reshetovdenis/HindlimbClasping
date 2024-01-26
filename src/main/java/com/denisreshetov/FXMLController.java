@@ -93,6 +93,8 @@ public class FXMLController {
     @FXML
     private TableColumn<MouseData, String> fileColumn;
 
+    private Duration pendingSeekTime = null;
+
     public static class MouseData {
         private final SimpleStringProperty mouseId;
         private final SimpleStringProperty time;
@@ -137,8 +139,13 @@ public class FXMLController {
                 String mouseId = selectedMouseData.getMouseId();
                 setSelectedMouse(mouseId);
                 File correspondingFile = mouseIdToFileMap.get(mouseId);
+                String timeString = selectedMouseData.getTime().replace(" ms", "");
+                double timeInMilliseconds = Double.parseDouble(timeString);
+                pendingSeekTime = Duration.millis(timeInMilliseconds);
                 if (!correspondingFile.equals(selectedVideo)) {
                     videoListView.getSelectionModel().select(correspondingFile.getName());
+                } else {
+                    seekToTime(pendingSeekTime);
                 }
             }
         });
@@ -222,6 +229,12 @@ public class FXMLController {
     private void restoreDefaults() {
         updateTimeLabel(new Duration(0));
     }
+    private void seekToTime(Duration seekTime){
+        if (mediaPlayer != null && mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
+            mediaPlayer.seek(seekTime);
+        }
+    }
+
 
     private void initializeVideoPlayer() {
         restoreDefaults();
@@ -239,7 +252,11 @@ public class FXMLController {
 
         // Set initial seek to start position when MediaPlayer is ready
         if (mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
-            mediaPlayer.seek(Duration.seconds(0));
+            Duration seekTime = Duration.seconds(0);
+            if(pendingSeekTime != null){
+                seekTime = pendingSeekTime;
+            }
+            mediaPlayer.seek(seekTime);
         }
 
         videoSlider.valueProperty().addListener(new ChangeListener<Number>() {
@@ -467,6 +484,7 @@ public class FXMLController {
             updateMiceTableView();
             updateProjectXML();
             selectedMouse = null;
+            pendingSeekTime = null;
         }
     }
 }
