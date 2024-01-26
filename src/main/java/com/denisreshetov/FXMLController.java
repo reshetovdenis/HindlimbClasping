@@ -145,7 +145,7 @@ public class FXMLController {
                 if (!correspondingFile.equals(selectedVideo)) {
                     videoListView.getSelectionModel().select(correspondingFile.getName());
                 } else {
-                    seekToTime(pendingSeekTime);
+                    setVideo(selectedVideo);
                 }
             }
         });
@@ -232,6 +232,8 @@ public class FXMLController {
     private void seekToTime(Duration seekTime){
         if (mediaPlayer != null && mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             mediaPlayer.seek(seekTime);
+            videoSlider.setValue(seekTime.toSeconds());
+            updateTimeLabel(seekTime);
         }
     }
 
@@ -257,6 +259,8 @@ public class FXMLController {
                 seekTime = pendingSeekTime;
             }
             mediaPlayer.seek(seekTime);
+            videoSlider.setValue(seekTime.toSeconds());
+            updateTimeLabel(seekTime);
         }
 
         videoSlider.valueProperty().addListener(new ChangeListener<Number>() {
