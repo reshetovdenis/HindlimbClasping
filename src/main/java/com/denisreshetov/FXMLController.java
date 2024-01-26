@@ -16,7 +16,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
-import java.io.File;
+import java.io.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -25,6 +25,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -107,10 +108,47 @@ public class FXMLController {
             this.file = new SimpleStringProperty(file);
         }
 
-        public String getMouseId() { return mouseId.get(); }
-        public String getTime() { return time.get(); }
-        public String getFile() { return file.get(); }
+        public String getMouseId() {
+            return mouseId.get();
+        }
+
+        public String getTime() {
+            return time.get();
+        }
+
+        public String getFile() {
+            return file.get();
+        }
     }
+
+    private String getDefaultFilePath() {
+        String userHome = System.getProperty("user.home");
+        return userHome + File.separator + ".hindlimbClaspingSettings";
+    }
+
+    private void saveProjectDirectoryPath(File projectDirectory) {
+        String filePath = getDefaultFilePath();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            writer.write(projectDirectory.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the exception (e.g., show an error message)
+        }
+    }
+
+    private void loadProjectDirectoryPath() {
+        String filePath = getDefaultFilePath();
+        File file = new File(filePath);
+        if (file.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String directoryPath = reader.readLine();
+                projectDirectory = new File(directoryPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void updateMiceTableView() {
         miceTableView.getItems().clear();
@@ -123,6 +161,9 @@ public class FXMLController {
     }
 
     public void initialize() {
+        loadProjectDirectoryPath();
+        projectInitialize();
+
         videoListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 int index = videoListView.getSelectionModel().getSelectedIndex();
@@ -150,12 +191,16 @@ public class FXMLController {
                 }
             }
         });
+        if(videoFiles.size()>0) {
+            setVideo(videoFiles.get(0));
+        }
     }
 
-    private String mouseIdToInfo(String mouseId){
+    private String mouseIdToInfo(String mouseId) {
         return mouseId;
     }
-    private String mouseInfoToId(String mouseInfo){
+
+    private String mouseInfoToId(String mouseInfo) {
         return mouseInfo;
     }
 
@@ -193,7 +238,7 @@ public class FXMLController {
         if (mediaPlayer != null) {
             Duration currentTime = mediaPlayer.getCurrentTime();
             fileToMouseIdMap.computeIfAbsent(selectedVideo, k -> new HashMap<>()).put(mouseId, currentTime);
-            if(!mouseIdToFileMap.containsKey(mouseId)){
+            if (!mouseIdToFileMap.containsKey(mouseId)) {
                 mouseIdToFileMap.put(mouseId, selectedVideo);
                 miceIds.add(mouseId);
             }
@@ -230,7 +275,8 @@ public class FXMLController {
     private void restoreDefaults() {
         updateTimeLabel(new Duration(0));
     }
-    private void seekToTime(Duration seekTime){
+
+    private void seekToTime(Duration seekTime) {
         mediaPlayer.seek(seekTime);
         this.allowSliderEvent = false;
         videoSlider.setValue(seekTime.toSeconds());
@@ -256,7 +302,7 @@ public class FXMLController {
         // Set initial seek to start position when MediaPlayer is ready
         if (mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             Duration seekTime = Duration.seconds(0);
-            if(pendingSeekTime != null){
+            if (pendingSeekTime != null) {
                 seekTime = pendingSeekTime;
             }
             seekToTime(seekTime);
@@ -264,7 +310,7 @@ public class FXMLController {
 
         videoSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                if(allowSliderEvent){
+                if (allowSliderEvent) {
                     Duration newDuration = Duration.seconds(newValue.doubleValue());
                     updateTimeLabel(newDuration);
                     if (videoSlider.isValueChanging() || videoSlider.isPressed()) {
@@ -288,7 +334,13 @@ public class FXMLController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Project Directory");
         projectDirectory = directoryChooser.showDialog(null);
+        if (projectDirectory != null) {
+            saveProjectDirectoryPath(projectDirectory);
+            projectInitialize();
+        }
+    }
 
+    private void projectInitialize() {
         if (projectDirectory != null) {
             MainApp.showProjectName(projectDirectory.getName());
             addVideoButton.setDisable(false);
@@ -363,6 +415,7 @@ public class FXMLController {
             writeXMLContent(xmlFile);
         }
     }
+
     private void loadMouseIdMapFromXML(File xmlFile) {
         if (xmlFile.exists()) {
             fileToMouseIdMap = new HashMap<>();
@@ -447,20 +500,21 @@ public class FXMLController {
             updateProjectXML();
         }
     }
+
     private void updateVideoListView() {
         videoListView.getItems().clear();
         for (File file : videoFiles) {
             videoListView.getItems().add(file.getName());
         }
-        if(videoFiles.size() > 0){
+        if (videoFiles.size() > 0) {
             videoListView.getSelectionModel().select(0);
         }
     }
 
     public void handleRemoveVideo(ActionEvent actionEvent) {
-        if(selectedVideo != null){
+        if (selectedVideo != null) {
             videoFiles.remove(selectedVideo);
-            if(videoFiles.size() == 0){
+            if (videoFiles.size() == 0) {
                 setVideo(null);
             }
             Set<String> obsoleteMiceIds = fileToMouseIdMap.get(selectedVideo).keySet();
@@ -479,7 +533,7 @@ public class FXMLController {
     }
 
     public void handleRemoveMouse(ActionEvent actionEvent) {
-        if(selectedMouse != null){
+        if (selectedMouse != null) {
             miceIds.remove(selectedMouse);
             File correspondingFile = mouseIdToFileMap.get(selectedMouse);
             fileToMouseIdMap.get(correspondingFile).remove(selectedMouse);
