@@ -81,6 +81,7 @@ public class FXMLController {
 
 
     private File selectedVideo = null;
+    private String selectedMouse = null;
 
     public void initialize() {
         videoListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -91,8 +92,18 @@ public class FXMLController {
                 setVideo(selectedFile);
             }
         });
+        miceListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                int index = miceListView.getSelectionModel().getSelectedIndex();
+                String mouseId = miceIds.get(index);
+                setSelectedMouse(mouseId);
+            }
+        });
     }
 
+    private void setSelectedMouse(String mouseId) {
+        this.selectedMouse = mouseId;
+    }
 
 
     private void setVideo(File file) {
@@ -404,5 +415,14 @@ public class FXMLController {
     }
 
     public void handleRemoveMouse(ActionEvent actionEvent) {
+        if(selectedMouse != null){
+            miceIds.remove(selectedMouse);
+            fileToMouseIdMap.get(selectedVideo).remove(selectedMouse);
+            if(miceIds.size() == 0){
+                setSelectedMouse(null);
+            }
+            updateMiceListView();
+            updateProjectXML();
+        }
     }
 }
