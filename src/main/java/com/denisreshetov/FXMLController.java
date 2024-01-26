@@ -138,7 +138,7 @@ public class FXMLController {
                 setSelectedMouse(mouseId);
                 File correspondingFile = mouseIdToFileMap.get(mouseId);
                 if (!correspondingFile.equals(selectedVideo)) {
-                    setVideo(correspondingFile);
+                    videoListView.getSelectionModel().select(correspondingFile.getName());
                 }
             }
         });
