@@ -166,6 +166,7 @@ public class FXMLController {
 
         videoListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
+                pausePlaying();
                 int index = videoListView.getSelectionModel().getSelectedIndex();
                 File selectedFile = videoFiles.get(index);
                 setVideo(selectedFile);
@@ -177,6 +178,7 @@ public class FXMLController {
 
         miceTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
+                pausePlaying();
                 MouseData selectedMouseData = newSelection;
                 String mouseId = selectedMouseData.getMouseId();
                 setSelectedMouse(mouseId);
@@ -194,14 +196,6 @@ public class FXMLController {
         if(videoFiles.size()>0) {
             setVideo(videoFiles.get(0));
         }
-    }
-
-    private String mouseIdToInfo(String mouseId) {
-        return mouseId;
-    }
-
-    private String mouseInfoToId(String mouseInfo) {
-        return mouseInfo;
     }
 
     private void setSelectedMouse(String mouseId) {
@@ -258,6 +252,15 @@ public class FXMLController {
             } else {
                 mediaPlayer.play();
                 setButtonIcon(togglePlayPauseButton, "pause.png");
+            }
+        }
+    }
+
+    private void pausePlaying() {
+        setButtonIcon(togglePlayPauseButton, "play.png");
+        if (mediaPlayer != null) {
+            if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+                mediaPlayer.pause();
             }
         }
     }
@@ -513,6 +516,7 @@ public class FXMLController {
 
     public void handleRemoveVideo(ActionEvent actionEvent) {
         if (selectedVideo != null) {
+            pausePlaying();
             videoFiles.remove(selectedVideo);
             if (videoFiles.size() == 0) {
                 setVideo(null);
@@ -534,6 +538,7 @@ public class FXMLController {
 
     public void handleRemoveMouse(ActionEvent actionEvent) {
         if (selectedMouse != null) {
+            pausePlaying();
             miceIds.remove(selectedMouse);
             File correspondingFile = mouseIdToFileMap.get(selectedMouse);
             fileToMouseIdMap.get(correspondingFile).remove(selectedMouse);
