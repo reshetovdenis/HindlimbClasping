@@ -1,6 +1,7 @@
 package com.denisreshetov;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -69,8 +70,8 @@ public class FXMLController {
 
     @FXML
     private ListView<String> videoListView;
-    @FXML
-    private ListView<String> miceListView;
+//    @FXML
+//    private ListView<String> miceListView;
 
     private List<File> videoFiles = new ArrayList<>();
 
@@ -83,22 +84,71 @@ public class FXMLController {
     private File selectedVideo = null;
     private String selectedMouse = null;
 
+    @FXML
+    private TableView<MouseData> miceTableView;
+    @FXML
+    private TableColumn<MouseData, String> mouseIdColumn;
+    @FXML
+    private TableColumn<MouseData, String> timeColumn;
+    @FXML
+    private TableColumn<MouseData, String> fileColumn;
+
+    public static class MouseData {
+        private final SimpleStringProperty mouseId;
+        private final SimpleStringProperty time;
+        private final SimpleStringProperty file;
+
+        public MouseData(String mouseId, String time, String file) {
+            this.mouseId = new SimpleStringProperty(mouseId);
+            this.time = new SimpleStringProperty(time);
+            this.file = new SimpleStringProperty(file);
+        }
+
+        public String getMouseId() { return mouseId.get(); }
+        public String getTime() { return time.get(); }
+        public String getFile() { return file.get(); }
+    }
+
+    private void updateMiceTableView() {
+        miceTableView.getItems().clear();
+        for (String id : miceIds.stream().sorted().toList()) {
+            File correspondingVideo = mouseIdToFileMap.get(id);
+            Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
+            String label = id + ": " + time.toString();
+            miceTableView.getItems().add(new MouseData(id, time.toString(), correspondingVideo.getName()));
+        }
+    }
+
     public void initialize() {
         videoListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 int index = videoListView.getSelectionModel().getSelectedIndex();
                 File selectedFile = videoFiles.get(index);
-                selectedVideo = selectedFile;
                 setVideo(selectedFile);
             }
         });
-        miceListView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+        mouseIdColumn.setCellValueFactory(cellData -> cellData.getValue().mouseId);
+        timeColumn.setCellValueFactory(cellData -> cellData.getValue().time);
+        fileColumn.setCellValueFactory(cellData -> cellData.getValue().file);
+
+        miceTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                int index = miceListView.getSelectionModel().getSelectedIndex();
-                String mouseId = miceIds.get(index);
+                MouseData selectedMouseData = newSelection;
+                String mouseId = selectedMouseData.getMouseId();
                 setSelectedMouse(mouseId);
+                File correspondingFile = mouseIdToFileMap.get(mouseId);
+                if (!correspondingFile.equals(selectedVideo)) {
+                    setVideo(correspondingFile);
+                }
             }
         });
+    }
+
+    private String mouseIdToInfo(String mouseId){
+        return mouseId;
+    }
+    private String mouseInfoToId(String mouseInfo){
+        return mouseInfo;
     }
 
     private void setSelectedMouse(String mouseId) {
@@ -107,6 +157,7 @@ public class FXMLController {
 
 
     private void setVideo(File file) {
+        selectedVideo = file;
         if (file != null) {
             String path = file.toURI().toString();
             Media media = new Media(path);
@@ -133,9 +184,11 @@ public class FXMLController {
         if (mediaPlayer != null) {
             Duration currentTime = mediaPlayer.getCurrentTime();
             fileToMouseIdMap.computeIfAbsent(selectedVideo, k -> new HashMap<>()).put(mouseId, currentTime);
-            mouseIdToFileMap.put(mouseId, selectedVideo);
-            miceIds.add(mouseId);
-            updateMiceListView();
+            if(!mouseIdToFileMap.containsKey(mouseId)){
+                mouseIdToFileMap.put(mouseId, selectedVideo);
+                miceIds.add(mouseId);
+            }
+            updateMiceTableView();
             updateProjectXML(); // Call this method to update the XML file
         }
     }
@@ -226,7 +279,7 @@ public class FXMLController {
                 loadVideosFromProjectXML(xmlFile);
                 loadMouseIdMapFromXML(xmlFile);
                 updateVideoListView();
-                updateMiceListView();
+                updateMiceTableView();
             } else {
                 // Handle the case where the XML file does not exist in the directory
             }
@@ -381,17 +434,6 @@ public class FXMLController {
             videoListView.getSelectionModel().select(0);
         }
     }
-    private void updateMiceListView() {
-        miceListView.getItems().clear();
-        for (String id : miceIds.stream().sorted().toList()) {
-            Duration time = fileToMouseIdMap.get(selectedVideo).get(id);
-            String label = id + ": " + time.toString();
-            miceListView.getItems().add(label);
-        }
-        if(miceIds.size() > 0){
-            miceListView.getSelectionModel().select(0);
-        }
-    }
 
     public void handleRemoveVideo(ActionEvent actionEvent) {
         if(selectedVideo != null){
@@ -409,7 +451,7 @@ public class FXMLController {
                 }
             }
             updateVideoListView();
-            updateMiceListView();
+            updateMiceTableView();
             updateProjectXML();
         }
     }
@@ -417,12 +459,12 @@ public class FXMLController {
     public void handleRemoveMouse(ActionEvent actionEvent) {
         if(selectedMouse != null){
             miceIds.remove(selectedMouse);
-            fileToMouseIdMap.get(selectedVideo).remove(selectedMouse);
-            if(miceIds.size() == 0){
-                setSelectedMouse(null);
-            }
-            updateMiceListView();
+            File correspondingFile = mouseIdToFileMap.get(selectedMouse);
+            fileToMouseIdMap.get(correspondingFile).remove(selectedMouse);
+            mouseIdToFileMap.remove(selectedMouse);
+            updateMiceTableView();
             updateProjectXML();
+            selectedMouse = null;
         }
     }
 }

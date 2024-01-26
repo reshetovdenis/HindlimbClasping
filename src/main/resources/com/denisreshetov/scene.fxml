@@ -14,6 +14,8 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denisreshetov.FXMLController">
     <!-- Menu Bar at the top -->
     <top>
@@ -45,7 +47,13 @@
                 <Label text="Mice:" />
                 <Button fx:id="removeMouseButton" text="-" onAction="#handleRemoveMouse" disable="true"/>
             </HBox>
-            <ListView fx:id="miceListView" VBox.vgrow="ALWAYS"/>
+            <TableView fx:id="miceTableView" VBox.vgrow="ALWAYS" prefWidth="200">
+                <columns>
+                    <TableColumn fx:id="mouseIdColumn" text="Mouse ID" />
+                    <TableColumn fx:id="timeColumn" text="Time" />
+                    <TableColumn fx:id="fileColumn" text="File" prefWidth="300"/>
+                </columns>
+            </TableView>
         </VBox>
     </right>
 
