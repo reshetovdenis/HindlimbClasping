@@ -87,7 +87,8 @@ public class FXMLController {
 
     private List<String> miceIds = new ArrayList<>();
     private Map<String, File> mouseIdToFileMap = new HashMap<>();
-
+    private Map<String, Map<Integer, StateOfLegs>> mouseToScoring = new HashMap<>();
+    private Integer currentFrame = 0;
 
     private File selectedVideo = null;
     private String selectedMouse = null;
@@ -202,7 +203,7 @@ public class FXMLController {
         }
     }
 
-    private Duration getTimeOfMouse(String mouseId){
+    private Duration getTimeOfMouse(String mouseId) {
         File correspondingFile = mouseIdToFileMap.get(mouseId);
         return fileToMouseIdMap.get(correspondingFile).get(mouseId);
     }
@@ -213,20 +214,25 @@ public class FXMLController {
     }
 
     private void addFrameButtons() {
-        frameButtons.getChildren().clear();
-        Duration totalDuration = scoringPlayer.getTotalDuration();
-        Label experimentSec = new Label("Test time:");
-        frameButtons.getChildren().add(experimentSec);
-        for (int i = 0; i < 14; i++) {
-            Button button = new Button(""+i);
-            button.setId("frameButton" + i);
-            Duration time = getTimeOfMouse(selectedMouse).add(Duration.seconds(i));
-            if(totalDuration.greaterThan(time)){
-                button.setOnAction(event -> {
-                    seekToTime(time);
-                    scoringSeekToTime(time);
-                });
-                frameButtons.getChildren().add(button);
+        if (selectedMouse != null) {
+            frameButtons.getChildren().clear();
+            currentFrame = 0;
+            Duration totalDuration = scoringPlayer.getTotalDuration();
+            Label experimentSec = new Label("Test time:");
+            frameButtons.getChildren().add(experimentSec);
+            for (int i = 0; i < 14; i++) {
+                Button button = new Button("" + i);
+                button.setId("frameButton" + i);
+                Duration time = getTimeOfMouse(selectedMouse).add(Duration.seconds(i));
+                if (totalDuration.greaterThan(time)) {
+                    int finalI = i;
+                    button.setOnAction(event -> {
+                        currentFrame = finalI;
+                        seekToTime(time);
+                        scoringSeekToTime(time);
+                    });
+                    frameButtons.getChildren().add(button);
+                }
             }
         }
     }
@@ -390,6 +396,7 @@ public class FXMLController {
             projectInitialize();
         }
     }
+
 
     private void projectInitialize() {
         if (projectDirectory != null) {
@@ -596,5 +603,43 @@ public class FXMLController {
             selectedMouse = null;
             pendingSeekTime = null;
         }
+    }
+
+    public void setLegState(boolean isLeftLeg, boolean isLegOk) {
+        StateOfLegs legState = mouseToScoring
+                .computeIfAbsent(selectedMouse, k -> new HashMap<>())
+                .computeIfAbsent(currentFrame, k -> new StateOfLegs());
+        if (legState == null) {//When was initially marked as NA
+            legState = new StateOfLegs();
+        }
+        if (isLeftLeg) {
+            legState.leftOK = isLegOk;
+        } else {
+            legState.rightOK = isLegOk;
+        }
+
+        // TODO: Write to XML
+    }
+
+    public void handleLeftRetracted(ActionEvent actionEvent) {
+        setLegState(true, false);
+    }
+
+    public void handleLeftOK(ActionEvent actionEvent) {
+        setLegState(true, true);
+    }
+
+    public void handleRightRetracted(ActionEvent actionEvent) {
+        setLegState(false, false);
+    }
+
+    public void handleRightOK(ActionEvent actionEvent) {
+        setLegState(false, true);
+    }
+
+    public void handleNAFrame(ActionEvent actionEvent) {
+        Map<Integer, StateOfLegs> mouseStates = mouseToScoring
+                .computeIfAbsent(selectedMouse, k -> new HashMap<>());
+        mouseStates.put(currentFrame, null);
     }
 }

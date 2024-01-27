@@ -99,26 +99,30 @@
                         </HBox>
                     </VBox>
                     <HBox alignment="CENTER" spacing="10">
-                        <HBox fx:id="leftLeg" alignment="CENTER" spacing="10">
+                        <HBox fx:id="legState" alignment="CENTER" spacing="10">
                             <Button fx:id="leftRetracted"
                                     text="Left retracted"
-                                    onAction="#handleSubmitMouseId"
+                                    onAction="#handleLeftRetracted"
                                     styleClass="wide-button"/>
                             <Button fx:id="leftOK"
                                     text="Left OK"
-                                    onAction="#handleSubmitMouseId"
+                                    onAction="#handleLeftOK"
                                     styleClass="wide-button"/>
-                        </HBox>
-                        <HBox fx:id="rightLeg" alignment="CENTER" spacing="10">
                             <Button fx:id="rightRetracted"
                                     text="Right retracted"
-                                    onAction="#handleSubmitMouseId"
+                                    onAction="#handleRightRetracted"
                                     styleClass="wide-button"/>
                             <Button fx:id="rightOK"
                                     text="Right OK"
-                                    onAction="#handleSubmitMouseId"
+                                    onAction="#handleRightOK"
                                     styleClass="wide-button"/>
                         </HBox>
+                    </HBox>
+                    <HBox alignment="CENTER" spacing="10">
+                            <Button fx:id="naFrame"
+                                    text="NA frame"
+                                    onAction="#handleNAFrame"
+                                    styleClass="wide-button"/>
                     </HBox>
                 </VBox>
             </Tab>
