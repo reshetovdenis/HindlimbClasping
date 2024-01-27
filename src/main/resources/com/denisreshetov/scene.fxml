@@ -94,14 +94,32 @@
             <Tab text="Scoring">
                 <VBox fx:id="scoring" spacing="10" alignment="CENTER">
                     <MediaView fx:id="scoringView" fitHeight="500"/>
-                    <HBox alignment="CENTER" spacing="10">
-                        <Label fx:id="scoringTime" text="0.0 s"/>
-                    </HBox>
                     <VBox alignment="CENTER" spacing="10">
                         <HBox fx:id="frameButtons" alignment="CENTER" spacing="10">
-
                         </HBox>
                     </VBox>
+                    <HBox alignment="CENTER" spacing="10">
+                        <HBox fx:id="leftLeg" alignment="CENTER" spacing="10">
+                            <Button fx:id="leftRetracted"
+                                    text="Left retracted"
+                                    onAction="#handleSubmitMouseId"
+                                    styleClass="wide-button"/>
+                            <Button fx:id="leftOK"
+                                    text="Left OK"
+                                    onAction="#handleSubmitMouseId"
+                                    styleClass="wide-button"/>
+                        </HBox>
+                        <HBox fx:id="rightLeg" alignment="CENTER" spacing="10">
+                            <Button fx:id="rightRetracted"
+                                    text="Right retracted"
+                                    onAction="#handleSubmitMouseId"
+                                    styleClass="wide-button"/>
+                            <Button fx:id="rightOK"
+                                    text="Right OK"
+                                    onAction="#handleSubmitMouseId"
+                                    styleClass="wide-button"/>
+                        </HBox>
+                    </HBox>
                 </VBox>
             </Tab>
         </TabPane>

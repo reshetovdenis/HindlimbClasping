@@ -46,8 +46,6 @@ public class FXMLController {
 
     @FXML
     private Label timeLabel;
-    @FXML
-    private Label scoringTime;
 
     @FXML
     private HBox frameButtons;
@@ -191,9 +189,7 @@ public class FXMLController {
                 String mouseId = selectedMouseData.getMouseId();
                 setSelectedMouse(mouseId);
                 File correspondingFile = mouseIdToFileMap.get(mouseId);
-                String timeString = selectedMouseData.getTime().replace(" ms", "");
-                double timeInMilliseconds = Double.parseDouble(timeString);
-                pendingSeekTime = Duration.millis(timeInMilliseconds);
+                pendingSeekTime = getTimeOfMouse(mouseId);
                 if (!correspondingFile.equals(selectedVideo)) {
                     videoListView.getSelectionModel().select(correspondingFile.getName());
                 } else {
@@ -204,7 +200,11 @@ public class FXMLController {
         if (videoFiles.size() > 0) {
             setVideo(videoFiles.get(0));
         }
-        addFrameButtons();
+    }
+
+    private Duration getTimeOfMouse(String mouseId){
+        File correspondingFile = mouseIdToFileMap.get(mouseId);
+        return fileToMouseIdMap.get(correspondingFile).get(mouseId);
     }
 
     private void setSelectedMouse(String mouseId) {
@@ -213,17 +213,21 @@ public class FXMLController {
     }
 
     private void addFrameButtons() {
-        for (int i = 0; i < 10; i++) {
+        frameButtons.getChildren().clear();
+        Duration totalDuration = scoringPlayer.getTotalDuration();
+        Label experimentSec = new Label("Test time:");
+        frameButtons.getChildren().add(experimentSec);
+        for (int i = 0; i < 14; i++) {
             Button button = new Button(""+i);
-            button.setId("frameButton" + i); // Set a unique ID for each button
-
-            // Optional: Add an event handler to each button
-            button.setOnAction(event -> {
-                // Handle button click event here
-                // You can use button.getId() to determine which button was clicked
-            });
-
-            frameButtons.getChildren().add(button); // Add the button to the VBox
+            button.setId("frameButton" + i);
+            Duration time = getTimeOfMouse(selectedMouse).add(Duration.seconds(i));
+            if(totalDuration.greaterThan(time)){
+                button.setOnAction(event -> {
+                    seekToTime(time);
+                    scoringSeekToTime(time);
+                });
+                frameButtons.getChildren().add(button);
+            }
         }
     }
 
@@ -307,10 +311,6 @@ public class FXMLController {
         String currentTime = new DecimalFormat("0.0").format(duration.toSeconds());
         timeLabel.setText(currentTime + " s");
     }
-    private void updateScoringTime(Duration duration) {
-        String currentTime = new DecimalFormat("0.0").format(duration.toSeconds());
-        scoringTime.setText(currentTime + " s");
-    }
 
     private void restoreDefaults() {
         updateTimeLabel(new Duration(0));
@@ -324,7 +324,6 @@ public class FXMLController {
 
     private void scoringSeekToTime(Duration seekTime) {
         scoringPlayer.seek(seekTime);
-        updateScoringTime(seekTime);
     }
 
 
@@ -378,6 +377,7 @@ public class FXMLController {
                 seekTime = pendingSeekTime;
             }
             scoringSeekToTime(seekTime);
+            addFrameButtons();
         }
     }
 
