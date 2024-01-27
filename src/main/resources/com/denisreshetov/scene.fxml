@@ -24,6 +24,7 @@
         <MenuBar>
             <Menu text="Project">
                 <MenuItem text="New/Open Project" onAction="#handleProject"/>
+                <MenuItem text="Export to Excel" onAction="#handleExport"/>
             </Menu>
         </MenuBar>
     </top>

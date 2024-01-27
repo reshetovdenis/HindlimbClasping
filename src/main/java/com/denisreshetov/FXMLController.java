@@ -34,6 +34,8 @@ import org.w3c.dom.NodeList;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class FXMLController {
     @FXML
@@ -398,7 +400,7 @@ public class FXMLController {
             addFrameButtons();
         }
     }
-
+    @FXML
     public void handleProject(ActionEvent actionEvent) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Project Directory");
@@ -408,7 +410,61 @@ public class FXMLController {
             projectInitialize();
         }
     }
+    @FXML
+    private void handleExport(ActionEvent actionEvent) {
+        Map<String, Integer> scores = new HashMap<>();
+        for(String mouse : miceIds){
+            Map<Integer, StateOfLegs> states = mouseToScoring.get(mouse);
+            Integer score = Scoring.getScore(states);
+            scores.put(mouse, score);
+        }
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Export File");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Excel Files", "*.xlsx")
+        );
+
+        File file = fileChooser.showSaveDialog(null);
+        if (file != null) {
+            exportScoresToExcel(scores, file);
+        }
+    }
+
+    private void exportScoresToExcel(Map<String, Integer> scores, File file) {
+        try (Workbook workbook = new XSSFWorkbook();
+             FileOutputStream fileOut = new FileOutputStream(file)) {
+            Sheet sheet = workbook.createSheet("Scores");
+
+            int rowNum = 0;
+            // Creating header row
+            Row headerRow = sheet.createRow(rowNum++);
+            headerRow.createCell(0).setCellValue("Mouse ID");
+            headerRow.createCell(1).setCellValue("Score");
+
+            // Filling data
+            for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(entry.getKey());
+                Integer score = entry.getValue();
+                if (score != null) {
+                    row.createCell(1).setCellValue(score);
+                } else {
+                    row.createCell(1).setCellValue("NA");
+                }
+            }
+            // Auto size columns
+            for (int i = 0; i < 2; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Write the output to a file
+            workbook.write(fileOut);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle exceptions here
+        }
+    }
 
     private void projectInitialize() {
         if (projectDirectory != null) {

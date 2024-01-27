@@ -8,15 +8,19 @@ public class Scoring {
         int countFalse = 0;
         int countNA = 0;
         for(StateOfLegs state: states.values()){
-            Boolean legState = state.rightOK;
-            if(isLeft){
-                legState = state.leftOK;
-            }
-            if(legState != null){
-                if(legState){
-                    countTrue++;
+            if(state != null){
+                Boolean legState = state.rightOK;
+                if(isLeft){
+                    legState = state.leftOK;
+                }
+                if(legState != null){
+                    if(legState){
+                        countTrue++;
+                    } else {
+                        countFalse++;
+                    }
                 } else {
-                    countFalse++;
+                    countNA++;
                 }
             } else {
                 countNA++;
@@ -40,6 +44,9 @@ public class Scoring {
         return false;
     }
     public static Integer getScore(Map<Integer, StateOfLegs> states){
+        if(states == null){
+            return null;
+        }
         boolean isScore3 = isScore3(states);
         if(isScore3){
             return 3;
