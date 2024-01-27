@@ -13,8 +13,20 @@
     -fx-pref-width: 120px;
 }
 
-.button:hover {
-    -fx-background-color: #666;
+.mark-state {
+    -fx-pref-width: 130px;
+    -fx-text-alignment: center;
+}
+
+.frame-button {
+    -fx-pref-width: 50px;
+    -fx-alignment: center;
+}
+
+.current-frame-button {
+    -fx-pref-width: 50px;
+    -fx-text-alignment: center;
+    -fx-background-color: #008000;
 }
 
 #videoSlider {

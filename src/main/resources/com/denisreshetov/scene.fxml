@@ -101,21 +101,21 @@
                     <HBox alignment="CENTER" spacing="10">
                         <HBox fx:id="legState" alignment="CENTER" spacing="10">
                             <Button fx:id="leftRetracted"
-                                    text="Left retracted"
+                                    text="left (R)etracted"
                                     onAction="#handleLeftRetracted"
-                                    styleClass="wide-button"/>
+                                    styleClass="mark-state"/>
                             <Button fx:id="leftOK"
-                                    text="Left OK"
+                                    text="Left (O)k"
                                     onAction="#handleLeftOK"
-                                    styleClass="wide-button"/>
+                                    styleClass="mark-state"/>
                             <Button fx:id="rightRetracted"
-                                    text="Right retracted"
+                                    text="right (R)etracted"
                                     onAction="#handleRightRetracted"
-                                    styleClass="wide-button"/>
+                                    styleClass="mark-state"/>
                             <Button fx:id="rightOK"
-                                    text="Right OK"
+                                    text="right (O)k"
                                     onAction="#handleRightOK"
-                                    styleClass="wide-button"/>
+                                    styleClass="mark-state"/>
                         </HBox>
                     </HBox>
                     <HBox alignment="CENTER" spacing="10">

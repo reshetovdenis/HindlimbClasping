@@ -213,16 +213,40 @@ public class FXMLController {
         mouseIdInput.setText(mouseId);
     }
 
+    private String stateToSymbol(Boolean state) {
+        if (state == null) {
+            return "-";
+        } else if (state == true) {
+            return "O";
+        }
+        return "R";
+    }
+
     private void addFrameButtons() {
         if (selectedMouse != null) {
             frameButtons.getChildren().clear();
-            currentFrame = 0;
             Duration totalDuration = scoringPlayer.getTotalDuration();
             Label experimentSec = new Label("Test time:");
             frameButtons.getChildren().add(experimentSec);
             for (int i = 0; i < 14; i++) {
-                Button button = new Button("" + i);
+                String buttonName = "-|-\n" + i;
+                if (mouseToScoring.get(selectedMouse) != null &&
+                        mouseToScoring.get(selectedMouse).containsKey(i)) {
+                    StateOfLegs state = mouseToScoring.get(selectedMouse).get(i);
+                    if (state == null) {
+                        buttonName = "NA\n" + i;
+                    } else {
+                        buttonName = stateToSymbol(state.leftOK) + "|" + stateToSymbol(state.rightOK) + "\n" + i;
+                    }
+
+                }
+                Button button = new Button(buttonName);
                 button.setId("frameButton" + i);
+                if(currentFrame == i){
+                    button.getStyleClass().add("current-frame-button");
+                } else {
+                    button.getStyleClass().add("frame-button");
+                }
                 Duration time = getTimeOfMouse(selectedMouse).add(Duration.seconds(i));
                 if (totalDuration.greaterThan(time)) {
                     int finalI = i;
@@ -230,6 +254,7 @@ public class FXMLController {
                         currentFrame = finalI;
                         seekToTime(time);
                         scoringSeekToTime(time);
+                        addFrameButtons();
                     });
                     frameButtons.getChildren().add(button);
                 }
@@ -240,6 +265,7 @@ public class FXMLController {
 
     private void setVideo(File file) {
         selectedVideo = file;
+        currentFrame = 0;
         if (file != null) {
             String path = file.toURI().toString();
             Media media = new Media(path);
@@ -617,7 +643,7 @@ public class FXMLController {
         } else {
             legState.rightOK = isLegOk;
         }
-
+        addFrameButtons();
         // TODO: Write to XML
     }
 
@@ -641,5 +667,6 @@ public class FXMLController {
         Map<Integer, StateOfLegs> mouseStates = mouseToScoring
                 .computeIfAbsent(selectedMouse, k -> new HashMap<>());
         mouseStates.put(currentFrame, null);
+        addFrameButtons();
     }
 }
