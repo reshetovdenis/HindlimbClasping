@@ -95,7 +95,6 @@ public class FXMLController {
     private TableColumn<MouseData, String> fileColumn;
 
     private Duration pendingSeekTime = null;
-    private boolean allowSliderEvent = true;
 
     public static class MouseData {
         private final SimpleStringProperty mouseId;
@@ -193,7 +192,7 @@ public class FXMLController {
                 }
             }
         });
-        if(videoFiles.size()>0) {
+        if (videoFiles.size() > 0) {
             setVideo(videoFiles.get(0));
         }
     }
@@ -281,9 +280,7 @@ public class FXMLController {
 
     private void seekToTime(Duration seekTime) {
         mediaPlayer.seek(seekTime);
-        this.allowSliderEvent = false;
         videoSlider.setValue(seekTime.toSeconds());
-        this.allowSliderEvent = true;
         updateTimeLabel(seekTime);
     }
 
@@ -313,15 +310,13 @@ public class FXMLController {
 
         videoSlider.valueProperty().addListener(new ChangeListener<Number>() {
             public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
-                if (allowSliderEvent) {
-                    Duration newDuration = Duration.seconds(newValue.doubleValue());
-                    updateTimeLabel(newDuration);
-                    if (videoSlider.isValueChanging() || videoSlider.isPressed()) {
-                        // Seek in mediaPlayer only if it is in a state to handle it
-                        if (mediaPlayer.getStatus().compareTo(MediaPlayer.Status.READY) >= 0 &&
-                                mediaPlayer.getTotalDuration().greaterThan(Duration.ZERO)) {
-                            mediaPlayer.seek(newDuration);
-                        }
+                Duration newDuration = Duration.seconds(newValue.doubleValue());
+                updateTimeLabel(newDuration);
+                if (videoSlider.isValueChanging() || videoSlider.isPressed()) {
+                    // Seek in mediaPlayer only if it is in a state to handle it
+                    if (mediaPlayer.getStatus().compareTo(MediaPlayer.Status.READY) >= 0 &&
+                            mediaPlayer.getTotalDuration().greaterThan(Duration.ZERO)) {
+                        mediaPlayer.seek(newDuration);
                     }
                 }
             }
