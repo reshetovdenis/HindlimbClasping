@@ -523,6 +523,21 @@ public class FXMLController {
                                 mouseIdMap.put(id, time);
                                 miceIds.add(id);
                                 mouseIdToFileMap.put(id, videoFile);
+                                //
+                                NodeList frameList = mouseElement.getElementsByTagName("frame");
+                                for (int k = 0; k < frameList.getLength(); k++) {
+                                    Node frameNode = frameList.item(k);
+                                    if (frameNode.getNodeType() == Node.ELEMENT_NODE) {
+                                        Element frameElement = (Element) frameNode;
+                                        String num = frameElement.getAttribute("num");
+                                        String state = frameElement.getAttribute("state");
+                                        StateOfLegs stateOfLegs = StateOfLegs.fromText(state);
+                                        Map<Integer, StateOfLegs> mouseStates = mouseToScoring
+                                                .computeIfAbsent(id, s -> new HashMap<>());
+                                        mouseStates.put(Integer.valueOf(num), stateOfLegs);
+                                    }
+                                }
+
                             }
                         }
 
