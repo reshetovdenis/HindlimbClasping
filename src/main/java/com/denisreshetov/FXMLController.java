@@ -213,15 +213,6 @@ public class FXMLController {
         mouseIdInput.setText(mouseId);
     }
 
-    private String stateToSymbol(Boolean state) {
-        if (state == null) {
-            return "-";
-        } else if (state == true) {
-            return "O";
-        }
-        return "R";
-    }
-
     private void addFrameButtons() {
         if (selectedMouse != null) {
             frameButtons.getChildren().clear();
@@ -233,12 +224,7 @@ public class FXMLController {
                 if (mouseToScoring.get(selectedMouse) != null &&
                         mouseToScoring.get(selectedMouse).containsKey(i)) {
                     StateOfLegs state = mouseToScoring.get(selectedMouse).get(i);
-                    if (state == null) {
-                        buttonName = "NA\n" + i;
-                    } else {
-                        buttonName = stateToSymbol(state.leftOK) + "|" + stateToSymbol(state.rightOK) + "\n" + i;
-                    }
-
+                    buttonName = StateOfLegs.text(state)+ "\n" + i;
                 }
                 Button button = new Button(buttonName);
                 button.setId("frameButton" + i);
@@ -470,10 +456,19 @@ public class FXMLController {
                 Map<String, Duration> mouseData = fileToMouseIdMap.get(videoFile);
                 if (mouseData != null) {
                     for (Map.Entry<String, Duration> mouseEntry : mouseData.entrySet()) {
+                        String mouseId = mouseEntry.getKey();
                         Element mouseElement = document.createElement("mouse");
-                        mouseElement.setAttribute("id", mouseEntry.getKey());
+                        mouseElement.setAttribute("id", mouseId);
                         mouseElement.setAttribute("time", String.valueOf(mouseEntry.getValue().toMillis()));
                         videoElement.appendChild(mouseElement);
+                        if(mouseToScoring.containsKey(mouseId)){
+                            for (Map.Entry<Integer, StateOfLegs> experiment : mouseToScoring.get(mouseId).entrySet()) {
+                                Element frameElement = document.createElement("frame");
+                                frameElement.setAttribute("num", experiment.getKey()+"");
+                                frameElement.setAttribute("state", StateOfLegs.text(experiment.getValue()));
+                                mouseElement.appendChild(frameElement);
+                            }
+                        }
                     }
                 }
 
@@ -644,7 +639,7 @@ public class FXMLController {
             legState.rightOK = isLegOk;
         }
         addFrameButtons();
-        // TODO: Write to XML
+        updateProjectXML();
     }
 
     public void handleLeftRetracted(ActionEvent actionEvent) {
@@ -668,5 +663,6 @@ public class FXMLController {
                 .computeIfAbsent(selectedMouse, k -> new HashMap<>());
         mouseStates.put(currentFrame, null);
         addFrameButtons();
+        updateProjectXML();
     }
 }
