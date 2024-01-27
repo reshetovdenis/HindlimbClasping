@@ -3,7 +3,7 @@ package com.denisreshetov;
 import java.util.Map;
 
 public class Scoring {
-    public static Boolean getConsensusLegState(Map<Integer, StateOfLegs> states, boolean isLeft){
+    public static Double getRetractedFraction(Map<Integer, StateOfLegs> states, boolean isLeft){
         int countTrue = 0;
         int countFalse = 0;
         int countNA = 0;
@@ -25,23 +25,37 @@ public class Scoring {
         if(countNA >= countTrue && countNA >= countFalse){
             return null;
         }
-        if(countTrue > countFalse){
-            return true;
+        return (double)countFalse/(double)(countTrue + countFalse);
+    }
+    public static boolean isScore3(Map<Integer, StateOfLegs> states){
+        for(StateOfLegs state: states.values()){
+            if(state != null){
+                if(state.leftOK != null && state.rightOK != null){
+                    if(!state.leftOK && !state.rightOK){
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }
     public static Integer getScore(Map<Integer, StateOfLegs> states){
-        Boolean leftConsensus = getConsensusLegState(states, true);
-        Boolean rightConsensus = getConsensusLegState(states, false);
-        if(leftConsensus == null || rightConsensus == null){
+        boolean isScore3 = isScore3(states);
+        if(isScore3){
+            return 3;
+        }
+        Double leftRetractedFraction = getRetractedFraction(states, true);
+        Double rightRetractedFraction = getRetractedFraction(states, false);
+        if(leftRetractedFraction == null || rightRetractedFraction == null){
             return null;
         }
-        if(leftConsensus && rightConsensus){
+        Double mean = (leftRetractedFraction + rightRetractedFraction)/2;
+        if(mean == 0){
             return 0;
-        } else if (!leftConsensus && !rightConsensus) {
-            return 2;
-        } else {
+        } else if (mean < 0.5) {
             return 1;
+        } else {
+            return 2;
         }
     }
 }
