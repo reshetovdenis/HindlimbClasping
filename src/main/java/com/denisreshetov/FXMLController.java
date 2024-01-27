@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -37,17 +38,25 @@ import java.util.*;
 public class FXMLController {
     @FXML
     private MediaView mediaView;
+    @FXML
+    private MediaView scoringView;
 
     @FXML
     private Slider videoSlider;
 
     @FXML
     private Label timeLabel;
+    @FXML
+    private Label scoringTime;
+
+    @FXML
+    private HBox frameButtons;
 
     @FXML
     private Label videoName;
 
     private MediaPlayer mediaPlayer;
+    private MediaPlayer scoringPlayer;
 
     @FXML
     private Button togglePlayPauseButton;
@@ -195,11 +204,27 @@ public class FXMLController {
         if (videoFiles.size() > 0) {
             setVideo(videoFiles.get(0));
         }
+        addFrameButtons();
     }
 
     private void setSelectedMouse(String mouseId) {
         this.selectedMouse = mouseId;
         mouseIdInput.setText(mouseId);
+    }
+
+    private void addFrameButtons() {
+        for (int i = 0; i < 10; i++) {
+            Button button = new Button(""+i);
+            button.setId("frameButton" + i); // Set a unique ID for each button
+
+            // Optional: Add an event handler to each button
+            button.setOnAction(event -> {
+                // Handle button click event here
+                // You can use button.getId() to determine which button was clicked
+            });
+
+            frameButtons.getChildren().add(button); // Add the button to the VBox
+        }
     }
 
 
@@ -216,8 +241,17 @@ public class FXMLController {
             });
             mediaView.setMediaPlayer(mediaPlayer);
             videoName.setText(file.getName());
+            //---
+            scoringPlayer = new MediaPlayer(media); // Initialize MediaPlayer first
+            scoringPlayer.statusProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == MediaPlayer.Status.READY) {
+                    initializeScoringPlayer();
+                }
+            });
+            scoringView.setMediaPlayer(scoringPlayer);
         } else {
             mediaView.setMediaPlayer(null);
+            scoringView.setMediaPlayer(null);
             videoName.setText("");
         }
     }
@@ -273,6 +307,10 @@ public class FXMLController {
         String currentTime = new DecimalFormat("0.0").format(duration.toSeconds());
         timeLabel.setText(currentTime + " s");
     }
+    private void updateScoringTime(Duration duration) {
+        String currentTime = new DecimalFormat("0.0").format(duration.toSeconds());
+        scoringTime.setText(currentTime + " s");
+    }
 
     private void restoreDefaults() {
         updateTimeLabel(new Duration(0));
@@ -282,6 +320,11 @@ public class FXMLController {
         mediaPlayer.seek(seekTime);
         videoSlider.setValue(seekTime.toSeconds());
         updateTimeLabel(seekTime);
+    }
+
+    private void scoringSeekToTime(Duration seekTime) {
+        scoringPlayer.seek(seekTime);
+        updateScoringTime(seekTime);
     }
 
 
@@ -326,6 +369,16 @@ public class FXMLController {
         togglePlayPauseButton.setDisable(false);
         mouseIdInput.setDisable(false);
         submitMouseIdButton.setDisable(false);
+    }
+
+    private void initializeScoringPlayer() {
+        if (scoringPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
+            Duration seekTime = Duration.seconds(0);
+            if (pendingSeekTime != null) {
+                seekTime = pendingSeekTime;
+            }
+            scoringSeekToTime(seekTime);
+        }
     }
 
     public void handleProject(ActionEvent actionEvent) {
