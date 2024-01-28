@@ -200,6 +200,7 @@ public class FXMLController {
                 ){
                     miceTableView.getSelectionModel().clearSelection();
                     selectedMouse = null;
+                    mouseIdInput.clear();
                     addFrameButtons();
                 }
             }
