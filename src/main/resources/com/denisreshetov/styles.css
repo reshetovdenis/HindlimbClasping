@@ -14,7 +14,8 @@
 }
 
 .mark-state {
-    -fx-pref-width: 130px;
+    -fx-pref-height: 5px;
+    -fx-pref-width: 10px;
     -fx-text-alignment: center;
 }
 

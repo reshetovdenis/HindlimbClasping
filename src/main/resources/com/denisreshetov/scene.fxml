@@ -104,19 +104,43 @@
                             <Button fx:id="leftRetracted"
                                     text="left (R)etracted"
                                     onAction="#handleLeftRetracted"
-                                    styleClass="mark-state"/>
+                                    styleClass="mark-state">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/leftRetracted.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
                             <Button fx:id="leftOK"
                                     text="Left (O)k"
                                     onAction="#handleLeftOK"
-                                    styleClass="mark-state"/>
+                                    styleClass="mark-state">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/leftOK.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
                             <Button fx:id="rightRetracted"
                                     text="right (R)etracted"
                                     onAction="#handleRightRetracted"
-                                    styleClass="mark-state"/>
+                                    styleClass="mark-state">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/rightRetracted.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
                             <Button fx:id="rightOK"
                                     text="right (O)k"
                                     onAction="#handleRightOK"
-                                    styleClass="mark-state"/>
+                                    styleClass="mark-state">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/rightOK.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
                         </HBox>
                     </HBox>
                     <HBox alignment="CENTER" spacing="10">
