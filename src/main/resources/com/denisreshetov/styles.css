@@ -14,9 +14,6 @@
 }
 
 .mark-state {
-    -fx-pref-height: 5px;
-    -fx-pref-width: 10px;
-    -fx-text-alignment: center;
 }
 
 .frame-button {
