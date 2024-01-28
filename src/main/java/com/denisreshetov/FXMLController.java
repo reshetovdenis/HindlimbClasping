@@ -76,6 +76,21 @@ public class FXMLController {
     @FXML
     private Button submitMouseIdButton;
 
+    @FXML
+    private Button leftRetracted;
+
+    @FXML
+    private Button leftOK;
+
+    @FXML
+    private Button rightRetracted;
+
+    @FXML
+    private Button rightOK;
+
+    @FXML
+    private Button naFrame;
+
     private File projectDirectory = null;
 
     @FXML
@@ -179,6 +194,14 @@ public class FXMLController {
                 int index = videoListView.getSelectionModel().getSelectedIndex();
                 File selectedFile = videoFiles.get(index);
                 setVideo(selectedFile);
+                if(
+                        !(fileToMouseIdMap.containsKey(selectedFile)
+                                && fileToMouseIdMap.get(selectedFile).containsKey(selectedMouse))
+                ){
+                    miceTableView.getSelectionModel().clearSelection();
+                    selectedMouse = null;
+                    addFrameButtons();
+                }
             }
         });
         mouseIdColumn.setCellValueFactory(cellData -> cellData.getValue().mouseId);
@@ -216,8 +239,19 @@ public class FXMLController {
     }
 
     private void addFrameButtons() {
+        frameButtons.getChildren().clear();
+        Button[] legButtons = {leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
+        scoringView.setVisible(false);
+        for(Button b : legButtons){
+            b.setVisible(false);
+            b.setDisable(true);
+        }
         if (selectedMouse != null) {
-            frameButtons.getChildren().clear();
+            scoringView.setVisible(true);
+            for(Button b : legButtons){
+                b.setVisible(true);
+                b.setDisable(false);
+            }
             Duration totalDuration = scoringPlayer.getTotalDuration();
             Label experimentSec = new Label("Test time:");
             frameButtons.getChildren().add(experimentSec);
@@ -467,6 +501,7 @@ public class FXMLController {
     }
 
     private void projectInitialize() {
+        MainApp.showProjectName("");
         if (projectDirectory != null) {
             MainApp.showProjectName(projectDirectory.getName());
             addVideoButton.setDisable(false);

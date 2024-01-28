@@ -22,8 +22,6 @@ public class MainApp extends Application {
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
-        stage.setTitle("Hindlimb Clasping Analysis");
-
         // Set the icon for the stage
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
 
