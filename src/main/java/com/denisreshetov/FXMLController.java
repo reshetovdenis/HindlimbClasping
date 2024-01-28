@@ -665,9 +665,6 @@ public class FXMLController {
         if (selectedVideo != null) {
             pausePlaying();
             videoFiles.remove(selectedVideo);
-            if (videoFiles.size() == 0) {
-                setVideo(null);
-            }
             Set<String> obsoleteMiceIds = fileToMouseIdMap.get(selectedVideo).keySet();
             miceIds.removeAll(obsoleteMiceIds);
             Map<String, Duration> mouseData = fileToMouseIdMap.remove(selectedVideo);
@@ -676,6 +673,9 @@ public class FXMLController {
                     miceIds.remove(mouseId);
                     mouseIdToFileMap.remove(mouseId);
                 }
+            }
+            if (videoFiles.size() == 0) {
+                setVideo(null);
             }
             updateVideoListView();
             updateMiceTableView();
