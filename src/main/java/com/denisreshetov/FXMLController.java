@@ -201,7 +201,7 @@ public class FXMLController {
                     miceTableView.getSelectionModel().clearSelection();
                     selectedMouse = null;
                     mouseIdInput.clear();
-                    addFrameButtons();
+                    refreshScoringTab();
                 }
             }
         });
@@ -239,7 +239,7 @@ public class FXMLController {
         mouseIdInput.setText(mouseId);
     }
 
-    private void addFrameButtons() {
+    private void refreshScoringTab() {
         frameButtons.getChildren().clear();
         Button[] legButtons = {leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
         scoringView.setVisible(false);
@@ -277,7 +277,7 @@ public class FXMLController {
                         currentFrame = finalI;
                         seekToTime(time);
                         scoringSeekToTime(time);
-                        addFrameButtons();
+                        refreshScoringTab();
                     });
                     frameButtons.getChildren().add(button);
                 }
@@ -329,8 +329,10 @@ public class FXMLController {
                 miceIds.add(mouseId);
             }
             mouseIdInput.clear();
+            selectedMouse = null;
             updateMiceTableView();
             updateProjectXML();
+            refreshScoringTab();
         }
     }
 
@@ -399,7 +401,7 @@ public class FXMLController {
         // Set initial seek to start position when MediaPlayer is ready
         if (mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             Duration seekTime = Duration.seconds(0);
-            if (pendingSeekTime != null) {
+            if (pendingSeekTime != null && selectedMouse != null) {
                 seekTime = pendingSeekTime;
             }
             seekToTime(seekTime);
@@ -428,11 +430,11 @@ public class FXMLController {
     private void initializeScoringPlayer() {
         if (scoringPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             Duration seekTime = Duration.seconds(0);
-            if (pendingSeekTime != null) {
+            if (pendingSeekTime != null && selectedMouse != null) {
                 seekTime = pendingSeekTime;
             }
             scoringSeekToTime(seekTime);
-            addFrameButtons();
+            refreshScoringTab();
         }
     }
     @FXML
@@ -745,7 +747,7 @@ public class FXMLController {
         } else {
             legState.rightOK = isLegOk;
         }
-        addFrameButtons();
+        refreshScoringTab();
         updateProjectXML();
     }
 
@@ -769,7 +771,7 @@ public class FXMLController {
         Map<Integer, StateOfLegs> mouseStates = mouseToScoring
                 .computeIfAbsent(selectedMouse, k -> new HashMap<>());
         mouseStates.put(currentFrame, null);
-        addFrameButtons();
+        refreshScoringTab();
         updateProjectXML();
     }
 }
