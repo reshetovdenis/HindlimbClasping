@@ -51,12 +51,12 @@ public class FXMLController {
     @FXML
     private MediaView mediaView;
     @FXML
-    private HBox mediaControl;
+    private VBox mouseInput;
     @FXML
     private MediaView scoringView;
 
     @FXML
-    private VBox mainContainer;
+    private VBox player;
 
     @FXML
     private Slider videoSlider;
@@ -145,11 +145,12 @@ public class FXMLController {
 
         if (!stage.isFullScreen()) {
             // Save the original parent and remove the MediaView from its current location
-            originalMediaViewParent = mediaView.getParent();
-            ((Pane) originalMediaViewParent).getChildren().remove(mediaView);
+            originalMediaViewParent = player.getParent();
+            ((Pane) originalMediaViewParent).getChildren().remove(player);
+            mouseInput.setVisible(false);
 
             // Create a new layout with just the MediaView
-            StackPane fullscreenPane = new StackPane(mediaView);
+            StackPane fullscreenPane = new StackPane(player);
             Scene fullscreenScene = new Scene(fullscreenPane);
 
             // Bind MediaView properties to fill the screen while preserving aspect ratio
@@ -187,8 +188,9 @@ public class FXMLController {
         // Re-add the MediaView to its original parent
         if (originalMediaViewParent instanceof Pane) {
             Pane parentPane = (Pane) originalMediaViewParent;
-            parentPane.getChildren().add(0, mediaView);
+            parentPane.getChildren().add(0, player);
         }
+        mouseInput.setVisible(true);
     }
 
 
