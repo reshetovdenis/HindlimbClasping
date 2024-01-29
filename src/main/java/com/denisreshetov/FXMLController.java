@@ -142,7 +142,7 @@ public class FXMLController {
 
     private Duration pendingSeekTime = null;
 
-    private int currentLastFrame = 0;
+    private Integer selectedVideoIndex = 0;
 
     Stage originalStage = null;
     Scene originalScene = null;
@@ -403,6 +403,7 @@ public class FXMLController {
             scoringView.setMediaPlayer(null);
             videoName.setText("");
         }
+        updateProjectXML();
     }
 
     @FXML
@@ -648,7 +649,9 @@ public class FXMLController {
             for (File videoFile : videoFiles) {
                 Element videoElement = document.createElement("video");
                 videoElement.setAttribute("path", videoFile.getPath());
-
+                if(videoFile.equals(selectedVideo)){
+                    videoElement.setAttribute("isSelected", String.valueOf(true));
+                }
                 // Check if there is mouse data for this video
                 Map<String, Duration> mouseData = fileToMouseIdMap.get(videoFile);
                 if (mouseData != null) {
@@ -758,6 +761,7 @@ public class FXMLController {
                 document.getDocumentElement().normalize();
 
                 NodeList videoList = document.getElementsByTagName("video");
+                int videoIndex = 0;
                 for (int i = 0; i < videoList.getLength(); i++) {
                     Node videoNode = videoList.item(i);
                     if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -766,7 +770,12 @@ public class FXMLController {
                         File videoFile = new File(videoName);
                         if (videoFile.exists()) {
                             videoFiles.add(videoFile);
+                            if(videoElement.hasAttribute("isSelected")){
+                                selectedVideo = videoFile;
+                                selectedVideoIndex = videoIndex;
+                            }
                         }
+                        videoIndex++;
                     }
                 }
             } catch (Exception e) {
@@ -797,8 +806,11 @@ public class FXMLController {
         for (File file : videoFiles) {
             videoListView.getItems().add(file.getName());
         }
-        if (videoFiles.size() > 0) {
+        if(selectedVideoIndex != null){
+            videoListView.getSelectionModel().select(selectedVideoIndex);
+        } else if (videoFiles.size() > 0) {
             videoListView.getSelectionModel().select(0);
+            selectedVideoIndex = 0;
         }
     }
 
