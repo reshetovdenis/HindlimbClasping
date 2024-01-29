@@ -1,6 +1,5 @@
 package com.denisreshetov;
 
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -624,8 +623,7 @@ public class FXMLController {
             File xmlFile = new File(projectDirectory, "clasping.xml");
             if (xmlFile.exists()) {
                 videoFiles.clear();
-                loadVideosFromProjectXML(xmlFile);
-                loadMouseIdMapFromXML(xmlFile);
+                loadDataFromProjectXML(xmlFile);
                 updateVideoListView();
                 updateMiceTableView();
             } else {
@@ -695,9 +693,9 @@ public class FXMLController {
         }
     }
 
-    private void loadMouseIdMapFromXML(File xmlFile) {
+    private void loadDataFromProjectXML(File xmlFile) {
+        videoFiles = new ArrayList<>();
         if (xmlFile.exists()) {
-            fileToMouseIdMap = new HashMap<>();
             try {
                 DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -705,6 +703,23 @@ public class FXMLController {
                 document.getDocumentElement().normalize();
 
                 NodeList videoList = document.getElementsByTagName("video");
+                int videoIndex = 0;
+                for (int i = 0; i < videoList.getLength(); i++) {
+                    Node videoNode = videoList.item(i);
+                    if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
+                        Element videoElement = (Element) videoNode;
+                        String videoName = videoElement.getAttribute("path");
+                        File videoFile = new File(videoName);
+                        if (videoFile.exists()) {
+                            videoFiles.add(videoFile);
+                            if(videoElement.hasAttribute("isSelected")){
+                                selectedVideo = videoFile;
+                                selectedVideoIndex = videoIndex;
+                            }
+                        }
+                        videoIndex++;
+                    }
+                }
                 for (int i = 0; i < videoList.getLength(); i++) {
                     Node videoNode = videoList.item(i);
                     if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -748,40 +763,7 @@ public class FXMLController {
                         fileToMouseIdMap.put(videoFile, mouseIdMap);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                // Handle exceptions
-            }
-        }
-    }
 
-    private void loadVideosFromProjectXML(File xmlFile) {
-        videoFiles = new ArrayList<>();
-        if (xmlFile.exists()) {
-            try {
-                DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-                Document document = documentBuilder.parse(xmlFile);
-                document.getDocumentElement().normalize();
-
-                NodeList videoList = document.getElementsByTagName("video");
-                int videoIndex = 0;
-                for (int i = 0; i < videoList.getLength(); i++) {
-                    Node videoNode = videoList.item(i);
-                    if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
-                        Element videoElement = (Element) videoNode;
-                        String videoName = videoElement.getAttribute("path");
-                        File videoFile = new File(videoName);
-                        if (videoFile.exists()) {
-                            videoFiles.add(videoFile);
-                            if(videoElement.hasAttribute("isSelected")){
-                                selectedVideo = videoFile;
-                                selectedVideoIndex = videoIndex;
-                            }
-                        }
-                        videoIndex++;
-                    }
-                }
             } catch (Exception e) {
                 e.printStackTrace();
                 // Handle exceptions related to XML reading
