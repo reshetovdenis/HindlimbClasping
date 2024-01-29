@@ -263,8 +263,9 @@ public class FXMLController {
         for (String id : miceIds) {
             File correspondingVideo = mouseIdToFileMap.get(id);
             Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
-            String label = id + ": " + time.toString();
-            miceTableView.getItems().add(new MouseData(id, time.toString(), correspondingVideo.getName()));
+            double seconds = time.toMillis() / 1000.0;
+            String formattedTime = String.format("%.1f", seconds);
+            miceTableView.getItems().add(new MouseData(id, formattedTime, correspondingVideo.getName()));
         }
         if (currentMouseIndex != null) {
             miceTableView.getSelectionModel().select(currentMouseIndex);
