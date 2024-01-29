@@ -176,8 +176,11 @@ public class FXMLController {
             fullscreenScene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ESCAPE) {
                     exitMediaViewFullScreen(originalStage, originalScene);
+                } else if (event.getCode() == KeyCode.SPACE) {
+                    handleTogglePlayPause();
                 }
             });
+            togglePlayPauseButton.requestFocus();
         } else {
             exitMediaViewFullScreen(originalStage, originalScene);
         }
