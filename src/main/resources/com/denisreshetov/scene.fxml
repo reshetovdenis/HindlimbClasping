@@ -70,7 +70,7 @@
 
                         <MediaView fx:id="mediaView" fitHeight="500"/>
                         <HBox fx:id="mediaControl" alignment="CENTER" spacing="10">
-                            <Button fx:id="fullScreenButton" text="" onAction="#handleMediaViewFullScreenToggle">
+                            <Button fx:id="toggleFullScreenButton" text="" onAction="#handleMediaViewFullScreenToggle">
                                 <graphic>
                                     <ImageView>
                                         <Image url="@../../images/expand.png"/>

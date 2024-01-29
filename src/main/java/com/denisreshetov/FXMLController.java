@@ -77,6 +77,9 @@ public class FXMLController {
     private Button togglePlayPauseButton;
 
     @FXML
+    private Button toggleFullScreenButton;
+
+    @FXML
     private Button addVideoButton;
 
     @FXML
@@ -122,6 +125,8 @@ public class FXMLController {
     private Map<String, Map<Integer, StateOfLegs>> mouseToScoring = new HashMap<>();
     private Integer currentFrame = 0;
 
+    private boolean isFullScreen = false;
+
     private File selectedVideo = null;
     private String selectedMouse = null;
 
@@ -138,12 +143,16 @@ public class FXMLController {
 
     private int currentLastFrame = 0;
 
+    Stage originalStage = null;
+    Scene originalScene = null;
+
     @FXML
     private void handleMediaViewFullScreenToggle() {
-        Stage stage = (Stage) mediaView.getScene().getWindow();
-        Scene scene = stage.getScene();
-
-        if (!stage.isFullScreen()) {
+        if (!isFullScreen) {
+            originalStage = (Stage) player.getScene().getWindow();
+            originalScene = originalStage.getScene();
+            isFullScreen = true;
+            setButtonIcon(toggleFullScreenButton, "compress.png");
             // Save the original parent and remove the MediaView from its current location
             originalMediaViewParent = player.getParent();
             ((Pane) originalMediaViewParent).getChildren().remove(player);
@@ -159,23 +168,23 @@ public class FXMLController {
             mediaView.setPreserveRatio(true);
 
             // Set the new scene and go fullscreen
-            stage.setScene(fullscreenScene);
-            stage.setFullScreen(true);
+            originalStage.setScene(fullscreenScene);
+            originalStage.setFullScreen(true);
 
             // Exit fullscreen on ESC
             fullscreenScene.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ESCAPE) {
-                    exitMediaViewFullScreen(stage, scene);
+                    exitMediaViewFullScreen(originalStage, originalScene);
                 }
             });
         } else {
-            exitMediaViewFullScreen(stage, scene);
+            exitMediaViewFullScreen(originalStage, originalScene);
         }
     }
 
     private void exitMediaViewFullScreen(Stage stage, Scene originalScene) {
         stage.setFullScreen(false);
-
+        isFullScreen = false;
         // Unbind MediaView properties and reset to original/preferred size
         mediaView.fitWidthProperty().unbind();
         mediaView.fitHeightProperty().unbind();
@@ -191,6 +200,7 @@ public class FXMLController {
             parentPane.getChildren().add(0, player);
         }
         mouseInput.setVisible(true);
+        setButtonIcon(toggleFullScreenButton, "expand.png");
     }
 
 
