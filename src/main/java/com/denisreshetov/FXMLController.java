@@ -1,5 +1,6 @@
 package com.denisreshetov;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
@@ -425,7 +426,6 @@ public class FXMLController {
         }
     }
 
-    @FXML
     private void handleTogglePlayPause() {
         setButtonIcon(togglePlayPauseButton, "play.png");
         if (mediaPlayer != null) {
@@ -514,6 +514,18 @@ public class FXMLController {
         togglePlayPauseButton.setDisable(false);
         mouseIdInput.setDisable(false);
         submitMouseIdButton.setDisable(false);
+
+        Stage stage = (Stage) player.getScene().getWindow();
+        Scene scene = stage.getScene();
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.SPACE) {
+                event.consume();
+                handleTogglePlayPause();
+            }
+        });
+        togglePlayPauseButton.setOnAction(event -> {
+            handleTogglePlayPause();
+        });
     }
 
     private void initializeScoringPlayer() {
