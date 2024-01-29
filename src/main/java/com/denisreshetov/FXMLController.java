@@ -260,13 +260,13 @@ public class FXMLController {
 
     private void updateMiceTableView() {
         miceTableView.getItems().clear();
-        for (String id : miceIds.stream().sorted().toList()) {
+        for (String id : miceIds) {
             File correspondingVideo = mouseIdToFileMap.get(id);
             Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
             String label = id + ": " + time.toString();
             miceTableView.getItems().add(new MouseData(id, time.toString(), correspondingVideo.getName()));
         }
-        if(currentMouseIndex != null){
+        if (currentMouseIndex != null) {
             miceTableView.getSelectionModel().select(currentMouseIndex);
         }
     }
@@ -290,6 +290,7 @@ public class FXMLController {
                     mouseIdInput.clear();
                     refreshScoringTab();
                 }
+                updateProjectXML();
             }
         });
         mouseIdColumn.setCellValueFactory(cellData -> cellData.getValue().mouseId);
@@ -313,9 +314,10 @@ public class FXMLController {
                 updateProjectXML();
             }
         });
-        if (videoFiles.size() > 0) {
-            setVideo(videoFiles.get(0));
+        if(selectedVideo != null){
+            setVideo(selectedVideo);
         }
+        updateSelection(true);
     }
 
     private Duration getTimeOfMouse(String mouseId) {
@@ -408,7 +410,7 @@ public class FXMLController {
             scoringView.setMediaPlayer(null);
             videoName.setText("");
         }
-        updateProjectXML();
+//        updateProjectXML();
     }
 
     @FXML
@@ -518,6 +520,7 @@ public class FXMLController {
         setButtonIcon(togglePlayPauseButton, "play.png");
         videoSlider.setDisable(false);
         togglePlayPauseButton.setDisable(false);
+        toggleFullScreenButton.setDisable(false);
         mouseIdInput.setDisable(false);
         submitMouseIdButton.setDisable(false);
 
@@ -619,15 +622,29 @@ public class FXMLController {
             addVideoButton.setDisable(false);
             removeVideoButton.setDisable(false);
             removeMouseButton.setDisable(false);
-
             File xmlFile = new File(projectDirectory, "clasping.xml");
             if (xmlFile.exists()) {
                 videoFiles.clear();
                 loadDataFromProjectXML(xmlFile);
                 updateVideoListView();
                 updateMiceTableView();
+                updateSelection(true);
             } else {
                 // Handle the case where the XML file does not exist in the directory
+            }
+        }
+    }
+
+    private void updateSelection(boolean isMouseIdSelection) {
+        if (isMouseIdSelection && currentMouseIndex != null) {
+            miceTableView.getSelectionModel().select(currentMouseIndex);
+        } else {
+            miceTableView.getSelectionModel().clearSelection();
+            if (selectedVideoIndex != null) {
+                videoListView.getSelectionModel().select(selectedVideoIndex);
+            } else if (videoFiles.size() > 0) {
+                videoListView.getSelectionModel().select(0);
+                selectedVideoIndex = 0;
             }
         }
     }
@@ -644,7 +661,7 @@ public class FXMLController {
             for (File videoFile : videoFiles) {
                 Element videoElement = document.createElement("video");
                 videoElement.setAttribute("path", videoFile.getPath());
-                if(videoFile.equals(selectedVideo)){
+                if (videoFile.equals(selectedVideo)) {
                     videoElement.setAttribute("isSelected", String.valueOf(true));
                 }
                 // Check if there is mouse data for this video
@@ -655,7 +672,7 @@ public class FXMLController {
                         Element mouseElement = document.createElement("mouse");
                         mouseElement.setAttribute("id", mouseId);
                         mouseElement.setAttribute("time", String.valueOf(mouseEntry.getValue().toMillis()));
-                        if(mouseId.equals(selectedMouse)){
+                        if (mouseId.equals(selectedMouse)) {
                             mouseElement.setAttribute("isSelected", String.valueOf(true));
                         }
                         videoElement.appendChild(mouseElement);
@@ -712,7 +729,7 @@ public class FXMLController {
                         File videoFile = new File(videoName);
                         if (videoFile.exists()) {
                             videoFiles.add(videoFile);
-                            if(videoElement.hasAttribute("isSelected")){
+                            if (videoElement.hasAttribute("isSelected")) {
                                 selectedVideo = videoFile;
                                 selectedVideoIndex = videoIndex;
                             }
@@ -720,6 +737,11 @@ public class FXMLController {
                         videoIndex++;
                     }
                 }
+                if(selectedVideo == null && videoFiles.size() > 0){
+                    selectedVideo = videoFiles.get(0);
+                    selectedVideoIndex = 0;
+                }
+                List<Element> mouseElements = new ArrayList<>();
                 for (int i = 0; i < videoList.getLength(); i++) {
                     Node videoNode = videoList.item(i);
                     if (videoNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -729,19 +751,21 @@ public class FXMLController {
 
                         Map<String, Duration> mouseIdMap = new HashMap<>();
                         NodeList mouseList = videoElement.getElementsByTagName("mouse");
-                        int mouseIndex = 0;
+
+
+
+
+
                         for (int j = 0; j < mouseList.getLength(); j++) {
                             Node mouseNode = mouseList.item(j);
                             if (mouseNode.getNodeType() == Node.ELEMENT_NODE) {
                                 Element mouseElement = (Element) mouseNode;
+                                mouseElements.add(mouseElement);
                                 String id = mouseElement.getAttribute("id");
                                 Duration time = Duration.millis(Double.parseDouble(mouseElement.getAttribute("time")));
                                 mouseIdMap.put(id, time);
-                                miceIds.add(id);
+
                                 mouseIdToFileMap.put(id, videoFile);
-                                if(mouseElement.hasAttribute("isSelected")){
-                                    currentMouseIndex = mouseIndex;
-                                }
                                 //
                                 NodeList frameList = mouseElement.getElementsByTagName("frame");
                                 for (int k = 0; k < frameList.getLength(); k++) {
@@ -756,14 +780,21 @@ public class FXMLController {
                                         mouseStates.put(Integer.valueOf(num), stateOfLegs);
                                     }
                                 }
-                                mouseIndex++;
+
                             }
                         }
-
                         fileToMouseIdMap.put(videoFile, mouseIdMap);
                     }
                 }
-
+                mouseElements.sort(Comparator.comparing(e -> e.getAttribute("id")));
+                for(int i = 0; i < mouseElements.size(); i++){
+                    Element element = mouseElements.get(i);
+                    String id = element.getAttribute("id");
+                    miceIds.add(id);
+                    if (element.hasAttribute("isSelected")) {
+                        currentMouseIndex = i;
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 // Handle exceptions related to XML reading
@@ -783,6 +814,7 @@ public class FXMLController {
         if (selectedFiles != null) {
             videoFiles.addAll(selectedFiles);
             updateVideoListView();
+            updateSelection(true);
             updateProjectXML();
         }
     }
@@ -792,7 +824,7 @@ public class FXMLController {
         for (File file : videoFiles) {
             videoListView.getItems().add(file.getName());
         }
-        if(selectedVideoIndex != null){
+        if (selectedVideoIndex != null) {
             videoListView.getSelectionModel().select(selectedVideoIndex);
         } else if (videoFiles.size() > 0) {
             videoListView.getSelectionModel().select(0);
@@ -818,6 +850,7 @@ public class FXMLController {
             }
             updateVideoListView();
             updateMiceTableView();
+            updateSelection(false);
             updateProjectXML();
         }
     }
@@ -830,29 +863,31 @@ public class FXMLController {
             fileToMouseIdMap.get(correspondingFile).remove(selectedMouse);
             mouseIdToFileMap.remove(selectedMouse);
             updateMiceTableView();
-            updateProjectXML();
+            updateSelection(false);
             selectedMouse = null;
             pendingSeekTime = null;
+            updateProjectXML();
         }
     }
 
-    private int getCurrentLastFrameIndex(){
+    private int getCurrentLastFrameIndex() {
         return frameButtons.getChildren().size() - 2;
     }
 
-    private void moveToNextFrame(){
-        if(currentFrame < getCurrentLastFrameIndex()){
+    private void moveToNextFrame() {
+        if (currentFrame < getCurrentLastFrameIndex()) {
             moveToFrame(++currentFrame);
         } else {
             //Move to next mouse
             currentFrame = 0;
             int currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
-            if(currentMouseIndex < miceTableView.getItems().size()){
+            if (currentMouseIndex < miceTableView.getItems().size()) {
                 miceTableView.getSelectionModel().select(++currentMouseIndex);
             }
         }
 
     }
+
     public void setLegState(boolean isLeftLeg, boolean isLegOk) {
         StateOfLegs legState = mouseToScoring
                 .computeIfAbsent(selectedMouse, k -> new HashMap<>())
@@ -865,7 +900,7 @@ public class FXMLController {
         } else {
             legState.rightOK = isLegOk;
         }
-        if(!legState.toString().matches(".*-.*")){
+        if (!legState.toString().matches(".*-.*")) {
             moveToNextFrame();
         }
         refreshScoringTab();
