@@ -104,6 +104,7 @@
             <!-- Tab 2 with new scoring container -->
             <Tab text="Scoring">
                 <VBox fx:id="scoring" spacing="10" alignment="CENTER">
+                    <Label fx:id="noMouseSelectedLabel" text="Select a mouse from the list on the right."/>
                     <MediaView fx:id="scoringView" fitHeight="500"/>
                     <VBox alignment="CENTER" spacing="10">
                         <HBox fx:id="frameButtons" alignment="CENTER" spacing="10">

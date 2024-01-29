@@ -56,6 +56,9 @@ public class FXMLController {
     private MediaView scoringView;
 
     @FXML
+    private Label noMouseSelectedLabel;
+
+    @FXML
     private VBox player;
 
     @FXML
@@ -339,11 +342,13 @@ public class FXMLController {
         frameButtons.getChildren().clear();
         Button[] legButtons = {leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
         scoringView.setVisible(false);
+        noMouseSelectedLabel.setVisible(true);
         for (Button b : legButtons) {
             b.setVisible(false);
             b.setDisable(true);
         }
         if (selectedMouse != null) {
+            noMouseSelectedLabel.setVisible(false);
             scoringView.setVisible(true);
             for (Button b : legButtons) {
                 b.setVisible(true);
