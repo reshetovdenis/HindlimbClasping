@@ -162,6 +162,7 @@ public class FXMLController {
             // Create a new layout with just the MediaView
             StackPane fullscreenPane = new StackPane(player);
             Scene fullscreenScene = new Scene(fullscreenPane);
+            fullscreenScene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
 
             // Bind MediaView properties to fill the screen while preserving aspect ratio
             mediaView.fitWidthProperty().bind(fullscreenScene.widthProperty());
