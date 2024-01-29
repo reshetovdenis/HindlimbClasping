@@ -67,7 +67,14 @@
             <Tab text="Video">
                 <VBox fx:id="mainContainer" spacing="10" alignment="CENTER" prefHeight="800" prefWidth="1200">
                     <MediaView fx:id="mediaView" fitHeight="500"/>
-                    <HBox alignment="CENTER" spacing="10">
+                    <HBox fx:id="mediaControl" alignment="CENTER" spacing="10">
+                        <Button fx:id="fullScreenButton" text="" onAction="#handleMediaViewFullScreenToggle">
+                            <graphic>
+                                <ImageView>
+                                    <Image url="@../../images/expand.png"/>
+                                </ImageView>
+                            </graphic>
+                        </Button>
                         <Button fx:id="togglePlayPauseButton" onAction="#handleTogglePlayPause" disable="true">
                             <graphic>
                                 <ImageView>
@@ -145,10 +152,10 @@
                         </HBox>
                     </HBox>
                     <HBox alignment="CENTER" spacing="10">
-                            <Button fx:id="naFrame"
-                                    text="NA frame"
-                                    onAction="#handleNAFrame"
-                                    styleClass="wide-button"/>
+                        <Button fx:id="naFrame"
+                                text="NA frame"
+                                onAction="#handleNAFrame"
+                                styleClass="wide-button"/>
                     </HBox>
                 </VBox>
             </Tab>

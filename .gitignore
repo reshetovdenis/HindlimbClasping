@@ -3,4 +3,5 @@
 /workspace.xml
 /.idea
 /dependency-reduced-pom.xml
-/videos
+/videos/
+/test_videos/

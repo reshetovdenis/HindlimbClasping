@@ -4,10 +4,16 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -15,6 +21,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.*;
@@ -39,11 +46,17 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class FXMLController {
+    private Parent originalMediaViewParent;
     private static final Integer MAX_FRAME = 13;
     @FXML
     private MediaView mediaView;
     @FXML
+    private HBox mediaControl;
+    @FXML
     private MediaView scoringView;
+
+    @FXML
+    private VBox mainContainer;
 
     @FXML
     private Slider videoSlider;
@@ -124,6 +137,60 @@ public class FXMLController {
     private Duration pendingSeekTime = null;
 
     private int currentLastFrame = 0;
+
+    @FXML
+    private void handleMediaViewFullScreenToggle() {
+        Stage stage = (Stage) mediaView.getScene().getWindow();
+        Scene scene = stage.getScene();
+
+        if (!stage.isFullScreen()) {
+            // Save the original parent and remove the MediaView from its current location
+            originalMediaViewParent = mediaView.getParent();
+            ((Pane) originalMediaViewParent).getChildren().remove(mediaView);
+
+            // Create a new layout with just the MediaView
+            StackPane fullscreenPane = new StackPane(mediaView);
+            Scene fullscreenScene = new Scene(fullscreenPane);
+
+            // Bind MediaView properties to fill the screen while preserving aspect ratio
+            mediaView.fitWidthProperty().bind(fullscreenScene.widthProperty());
+            mediaView.fitHeightProperty().bind(fullscreenScene.heightProperty());
+            mediaView.setPreserveRatio(true);
+
+            // Set the new scene and go fullscreen
+            stage.setScene(fullscreenScene);
+            stage.setFullScreen(true);
+
+            // Exit fullscreen on ESC
+            fullscreenScene.setOnKeyPressed(event -> {
+                if (event.getCode() == KeyCode.ESCAPE) {
+                    exitMediaViewFullScreen(stage, scene);
+                }
+            });
+        } else {
+            exitMediaViewFullScreen(stage, scene);
+        }
+    }
+
+    private void exitMediaViewFullScreen(Stage stage, Scene originalScene) {
+        stage.setFullScreen(false);
+
+        // Unbind MediaView properties and reset to original/preferred size
+        mediaView.fitWidthProperty().unbind();
+        mediaView.fitHeightProperty().unbind();
+        mediaView.setFitHeight(500); // Reset to original width
+        mediaView.setPreserveRatio(true);
+
+        // Restore the original scene
+        stage.setScene(originalScene);
+
+        // Re-add the MediaView to its original parent
+        if (originalMediaViewParent instanceof Pane) {
+            Pane parentPane = (Pane) originalMediaViewParent;
+            parentPane.getChildren().add(0, mediaView);
+        }
+    }
+
 
     public static class MouseData {
         private final SimpleStringProperty mouseId;
