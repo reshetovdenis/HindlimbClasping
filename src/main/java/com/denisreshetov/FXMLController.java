@@ -438,6 +438,7 @@ public class FXMLController {
             }
             mouseIdInput.clear();
             selectedMouse = null;
+            currentMouseIndex = null;
             updateMiceTableView();
             updateProjectXML();
             refreshScoringTab();
