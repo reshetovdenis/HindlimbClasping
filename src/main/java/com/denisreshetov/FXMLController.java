@@ -267,7 +267,7 @@ public class FXMLController {
 
     private void updateMiceTableView() {
         miceTableView.getItems().clear();
-        for (String id : miceIds) {
+        for (String id : miceIds.stream().sorted().toList()) {
             File correspondingVideo = mouseIdToFileMap.get(id);
             Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
             double seconds = time.toMillis() / 1000.0;
