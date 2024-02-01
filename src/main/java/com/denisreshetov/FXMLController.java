@@ -429,11 +429,42 @@ public class FXMLController {
         if (mouseId.isEmpty() || selectedVideo == null) {
             return;
         }
+
+        // Check if the mouseId already exists
+        if (mouseIdToFileMap.containsKey(mouseId)) {
+            // Create confirmation dialog
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Overwrite");
+            alert.setHeaderText("Mouse ID \"" + mouseId + "\" already exists");
+            alert.setContentText("Do you want to overwrite this Mouse ID?");
+
+            // Customize the buttons
+            ButtonType buttonTypeYes = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType buttonTypeNo = new ButtonType("No", ButtonBar.ButtonData.NO);
+
+            // Set the button types.
+            alert.getButtonTypes().setAll(buttonTypeYes, buttonTypeNo);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == buttonTypeYes){
+                // User chose YES, proceed with overwrite
+                addMouseIdToProject(mouseId);
+            } else {
+                // User chose NO or closed the dialog, do nothing
+                return;
+            }
+        } else {
+            // Mouse ID does not exist, proceed with adding
+            addMouseIdToProject(mouseId);
+        }
+    }
+
+    private void addMouseIdToProject(String mouseId) {
         if (mediaPlayer != null) {
             Duration currentTime = mediaPlayer.getCurrentTime();
             fileToMouseIdMap.computeIfAbsent(selectedVideo, k -> new HashMap<>()).put(mouseId, currentTime);
-            if (!mouseIdToFileMap.containsKey(mouseId)) {
-                mouseIdToFileMap.put(mouseId, selectedVideo);
+            mouseIdToFileMap.put(mouseId, selectedVideo); // This line ensures the ID is added or overwritten
+            if (!miceIds.contains(mouseId)) {
                 miceIds.add(mouseId);
             }
             mouseIdInput.clear();
