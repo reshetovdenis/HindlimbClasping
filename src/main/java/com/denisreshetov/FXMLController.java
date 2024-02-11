@@ -98,6 +98,9 @@ public class FXMLController {
     private Button submitMouseIdButton;
 
     @FXML
+    private Button rescore;
+
+    @FXML
     private Button scoreIs3;
 
     @FXML
@@ -221,6 +224,12 @@ public class FXMLController {
         legState.setScore3(true);
         mouseStates.put(currentFrame, legState);
         moveToNextFrame();
+        refreshScoringTab();
+        updateProjectXML();
+    }
+
+    public void handleRescore(ActionEvent actionEvent) {
+        mouseToScoring.put(selectedMouse, new HashMap<>());
         refreshScoringTab();
         updateProjectXML();
     }
@@ -354,7 +363,7 @@ public class FXMLController {
 
     private void refreshScoringTab() {
         frameButtons.getChildren().clear();
-        Button[] legButtons = {scoreIs3, leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
+        Button[] legButtons = {rescore, scoreIs3, leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
         scoringView.setVisible(false);
         noMouseSelectedLabel.setVisible(true);
         for (Button b : legButtons) {

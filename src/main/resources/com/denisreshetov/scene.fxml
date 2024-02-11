@@ -112,6 +112,10 @@
                     </VBox>
                     <HBox alignment="CENTER" spacing="10">
                         <HBox fx:id="legState" alignment="CENTER" spacing="10">
+                            <Button fx:id="rescore"
+                                    text="Rescore"
+                                    onAction="#handleRescore"
+                                    styleClass="wide-button"/>
                             <Button fx:id="scoreIs3"
                                     text=""
                                     onAction="#handleScoreIs3"
