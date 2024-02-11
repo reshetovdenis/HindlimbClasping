@@ -98,6 +98,9 @@ public class FXMLController {
     private Button submitMouseIdButton;
 
     @FXML
+    private Button scoreIs3;
+
+    @FXML
     private Button leftRetracted;
 
     @FXML
@@ -209,6 +212,17 @@ public class FXMLController {
         }
         mouseInput.setVisible(true);
         setButtonIcon(toggleFullScreenButton, "expand.png");
+    }
+
+    public void handleScoreIs3(ActionEvent actionEvent) {
+        Map<Integer, StateOfLegs> mouseStates = mouseToScoring
+                .computeIfAbsent(selectedMouse, k -> new HashMap<>());
+        StateOfLegs legState = new StateOfLegs();
+        legState.setScore3(true);
+        mouseStates.put(currentFrame, legState);
+        moveToNextFrame();
+        refreshScoringTab();
+        updateProjectXML();
     }
 
 
@@ -340,7 +354,7 @@ public class FXMLController {
 
     private void refreshScoringTab() {
         frameButtons.getChildren().clear();
-        Button[] legButtons = {leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
+        Button[] legButtons = {scoreIs3, leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
         scoringView.setVisible(false);
         noMouseSelectedLabel.setVisible(true);
         for (Button b : legButtons) {
@@ -634,10 +648,11 @@ public class FXMLController {
             headerRow.createCell(1).setCellValue("Score");
 
             // Filling data
-            for (Map.Entry<String, Integer> entry : scores.entrySet()) {
+            List<String> ids = scores.keySet().stream().sorted().toList();
+            for (String id : ids) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(entry.getKey());
-                Integer score = entry.getValue();
+                row.createCell(0).setCellValue(id);
+                Integer score = scores.get(id);
                 if (score != null) {
                     row.createCell(1).setCellValue(score);
                 } else {
@@ -938,9 +953,9 @@ public class FXMLController {
             legState = new StateOfLegs();
         }
         if (isLeftLeg) {
-            legState.leftOK = isLegOk;
+            legState.setLeftOK(isLegOk);
         } else {
-            legState.rightOK = isLegOk;
+            legState.setRightOK(isLegOk);
         }
         if (!legState.toString().matches(".*-.*")) {
             moveToNextFrame();

@@ -112,6 +112,16 @@
                     </VBox>
                     <HBox alignment="CENTER" spacing="10">
                         <HBox fx:id="legState" alignment="CENTER" spacing="10">
+                            <Button fx:id="scoreIs3"
+                                    text=""
+                                    onAction="#handleScoreIs3"
+                                    styleClass="mark-state">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/scoreIs3.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
                             <Button fx:id="leftRetracted"
                                     text=""
                                     onAction="#handleLeftRetracted"

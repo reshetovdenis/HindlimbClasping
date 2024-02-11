@@ -8,20 +8,20 @@ public class StateOfLegsTest {
     @Test
     public void testConstructor() {
         StateOfLegs state = new StateOfLegs(true, false);
-        assertEquals(state.leftOK, Boolean.TRUE);
-        assertEquals(state.rightOK, Boolean.FALSE);
+        assertEquals(state.getLeftOK(), Boolean.TRUE);
+        assertEquals(state.getRightOK(), Boolean.FALSE);
     }
 
     @Test
     public void testDefaultConstructor() {
         StateOfLegs state = new StateOfLegs();
-        assertNull(state.leftOK);
-        assertNull(state.rightOK);
+        assertNull(state.getLeftOK());
+        assertNull(state.getRightOK());
     }
 
     @Test
     public void testFromTextValidInput() {
-        String[] types = {"-|-", "O|-", "R|-", "-|O","-|R", "O|O", "O|R", "R|R", "R|O", "O|O" };
+        String[] types = {"3", "-|-", "O|-", "R|-", "-|O","-|R", "O|O", "O|R", "R|R", "R|O", "O|O" };
         for(String type: types){
             StateOfLegs state = StateOfLegs.fromText(type);
             assertEquals(state.toString(), type);
@@ -43,6 +43,13 @@ public class StateOfLegsTest {
     @Test
     public void testTextMethodWithNull() {
         assertEquals(StateOfLegs.text(null), "NA");
+    }
+
+    @Test
+    public void testTextMethodWithScore3() {
+        StateOfLegs state = new StateOfLegs();
+        state.setScore3(true);
+        assertEquals(state.toString(), "3");
     }
 
     @Test

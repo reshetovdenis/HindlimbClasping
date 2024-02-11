@@ -9,9 +9,9 @@ public class Scoring {
         int countNA = 0;
         for(StateOfLegs state: states.values()){
             if(state != null){
-                Boolean legState = state.rightOK;
+                Boolean legState = state.getRightOK();
                 if(isLeft){
-                    legState = state.leftOK;
+                    legState = state.getLeftOK();
                 }
                 if(legState != null){
                     if(legState){
@@ -34,10 +34,8 @@ public class Scoring {
     public static boolean isScore3(Map<Integer, StateOfLegs> states){
         for(StateOfLegs state: states.values()){
             if(state != null){
-                if(state.leftOK != null && state.rightOK != null){
-                    if(!state.leftOK && !state.rightOK){
-                        return true;
-                    }
+                if(state.getScore3() != null && state.getScore3()){
+                    return true;
                 }
             }
         }

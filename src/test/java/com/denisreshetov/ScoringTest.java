@@ -127,28 +127,11 @@ assigned a score of 3 (Fig. 1C).
             states.put(i, new StateOfLegs(false, false));
         }
         result = Scoring.getScore(states);
-        assertEquals(result, 3);
+        assertEquals(result, 2);
         //
-        for (int i = 4; i <= 6; i++) {
-            states.put(i, new StateOfLegs(true, false));
-        }
-        result = Scoring.getScore(states);
-        assertEquals(result, 3);
-        //
-        for (int i = 7; i <= 7; i++) {
-            states.put(i, new StateOfLegs(true, false));
-        }
-        result = Scoring.getScore(states);
-        assertEquals(result, 3);
-        //
-        for (int i = 8; i <= 14; i++) {
-            states.put(i, new StateOfLegs(true, true));
-        }
-        result = Scoring.getScore(states);
-        assertEquals(result, 3);
-        for (int i = 15; i <= 15; i++) {
-            states.put(i, new StateOfLegs(true, true));
-        }
+        StateOfLegs state3 = new StateOfLegs();
+        state3.setScore3(true);
+        states.put(4, state3);
         result = Scoring.getScore(states);
         assertEquals(result, 3);
     }
