@@ -236,8 +236,8 @@ public class FXMLController {
     public void handleRescore(ActionEvent actionEvent) {
         mouseToScoring.put(selectedMouse, new HashMap<>());
         moveToFrame(0);
-        updateProjectXML();
         updateMiceTableView();
+        updateProjectXML();
     }
 
 
@@ -347,19 +347,20 @@ public class FXMLController {
 
         miceTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
-                pausePlaying();
-                MouseData selectedMouseData = newSelection;
-                String mouseId = selectedMouseData.getMouseId();
-                setSelectedMouse(mouseId);
-                File correspondingFile = mouseIdToFileMap.get(mouseId);
-                pendingSeekTime = getTimeOfMouse(mouseId);
-                if (!correspondingFile.equals(selectedVideo)) {
-                    videoListView.getSelectionModel().select(correspondingFile.getName());
-                } else {
-                    setVideo(selectedVideo);
+                if(currentMouseIndex != miceTableView.getSelectionModel().getSelectedIndex()){
+                    currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
+                    pausePlaying();
+                    MouseData selectedMouseData = newSelection;
+                    String mouseId = selectedMouseData.getMouseId();
+                    setSelectedMouse(mouseId);
+                    File correspondingFile = mouseIdToFileMap.get(mouseId);
+                    pendingSeekTime = getTimeOfMouse(mouseId);
+                    if (!correspondingFile.equals(selectedVideo)) {
+                        videoListView.getSelectionModel().select(correspondingFile.getName());
+                    } else {
+                        setVideo(selectedVideo);
+                    }
                 }
-                updateProjectXML();
             }
         });
         if(selectedVideo != null){
@@ -988,6 +989,7 @@ public class FXMLController {
             moveToNextFrame();
         }
         updateMiceTableView();
+        updateProjectXML();
     }
 
     public void handleLeftRetracted(ActionEvent actionEvent) {
@@ -1012,5 +1014,6 @@ public class FXMLController {
         mouseStates.put(currentFrame, null);
         moveToNextFrame();
         updateMiceTableView();
+        updateProjectXML();
     }
 }
