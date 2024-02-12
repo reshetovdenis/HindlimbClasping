@@ -32,32 +32,37 @@ public class Scoring {
         return (double)countFalse/(double)(countTrue + countFalse);
     }
     public static boolean isScore3(Map<Integer, StateOfLegs> states){
-        for(StateOfLegs state: states.values()){
-            if(state != null){
-                if(state.getScore3() != null && state.getScore3()){
-                    return true;
+        if(states != null){
+            for(StateOfLegs state: states.values()){
+                if(state != null){
+                    if(state.getScore3() != null && state.getScore3()){
+                        return true;
+                    }
                 }
             }
         }
         return false;
     }
+
+    protected static int MIN_FRAMES_SCORED = 8;
     public static Integer getScore(Map<Integer, StateOfLegs> states){
-        if(states == null){
-            return null;
-        }
         boolean isScore3 = isScore3(states);
         if(isScore3){
             return 3;
         }
+        if(states == null || states.size() < MIN_FRAMES_SCORED){
+            return null;
+        }
+
         Double leftRetractedFraction = getRetractedFraction(states, true);
         Double rightRetractedFraction = getRetractedFraction(states, false);
         if(leftRetractedFraction == null || rightRetractedFraction == null){
             return null;
         }
-        Double mean = (leftRetractedFraction + rightRetractedFraction)/2;
-        if(mean == 0){
+
+        if((leftRetractedFraction + rightRetractedFraction) == 0){
             return 0;
-        } else if (mean < 0.5) {
+        } else if ( (leftRetractedFraction < 0.5) && (rightRetractedFraction < 0.5) ) {
             return 1;
         } else {
             return 2;

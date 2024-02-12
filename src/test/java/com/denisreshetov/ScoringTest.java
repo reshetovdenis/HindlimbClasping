@@ -46,6 +46,16 @@ public class ScoringTest {
         assertEquals(result, null);
     }
 
+    @Test
+    public void testMinFramesScored() {
+        Map<Integer, StateOfLegs> states = new HashMap<>();
+        for (int i = 0; i < (Scoring.MIN_FRAMES_SCORED - 1); i++) {
+            states.put(i, new StateOfLegs(true, true));
+        }
+        states.put(Scoring.MIN_FRAMES_SCORED - 1, new StateOfLegs(true, true));
+        assertEquals(Scoring.getScore(states), 0);
+    }
+
     /*
    (0) If the hindlimbs are consistently splayed outward, away
 from the abdomen and never retract towards the abdomen,
@@ -54,16 +64,12 @@ the mouse is assigned a score of 0 (Fig. 1A).
     @Test
     public void testGetScore0() {
         Map<Integer, StateOfLegs> states = new HashMap<>();
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(true, true));
         }
-        Integer result = Scoring.getScore(states);
-        assertEquals(result, 0);
-        for (int i = 4; i <= 6; i++) {
-            states.put(i, new StateOfLegs(true, false));
-        }
-        result = Scoring.getScore(states);
-        assertEquals(result, 1);
+        assertEquals(Scoring.getScore(states), 0);
+        states.put(Scoring.MIN_FRAMES_SCORED, new StateOfLegs(true, false));
+        assertEquals(Scoring.getScore(states), 1);
     }
 
     /*
@@ -75,16 +81,15 @@ the mouse is assigned a score of 0 (Fig. 1A).
     @Test
     public void testGetScore1() {
         Map<Integer, StateOfLegs> states = new HashMap<>();
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(true, true));
         }
-        Integer result = Scoring.getScore(states);
-        assertEquals(result, 0);
-        for (int i = 4; i <= 6; i++) {
+        states.put(Scoring.MIN_FRAMES_SCORED, new StateOfLegs(true, false));
+        assertEquals(Scoring.getScore(states), 1);
+        for (int i = Scoring.MIN_FRAMES_SCORED+1; i < 17; i++) {
             states.put(i, new StateOfLegs(true, false));
         }
-        result = Scoring.getScore(states);
-        assertEquals(result, 1);
+        assertEquals(Scoring.getScore(states), 2);
     }
 
     /*
@@ -94,23 +99,47 @@ the mouse is assigned a score of 0 (Fig. 1A).
  mouse is assigned a score of 2 (Fig. 1B).
      */
     @Test
-    public void testGetScore2() {
+    public void testGetScore2IfCumulativeRetractionIsHalfAndAboveTime() {
         Map<Integer, StateOfLegs> states = new HashMap<>();
-        for (int i = 1; i <= 3; i++) {
+        states.put(0, null);
+        for (int i = 0; i < 4; i++) {
             states.put(i, new StateOfLegs(false, true));
         }
-        for (int i = 4; i <= 6; i++) {
+        for (int i = 4; i < Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(true, false));
         }
-        Integer result = Scoring.getScore(states);
-        assertEquals(result, 2);
-        //
-        for (int i = 7; i <= 7; i++) {
+        assertEquals(Scoring.getScore(states), 2);
+        states.put(Scoring.MIN_FRAMES_SCORED, new StateOfLegs(true, true));
+        assertEquals(Scoring.getScore(states), 1);
+    }
+
+    @Test
+    public void testGetScore2IfRightLegIsConstantlyRetracted() {
+        Map<Integer, StateOfLegs> states = new HashMap<>();
+        for (int i = 0; i <= 4; i++) {
             states.put(i, new StateOfLegs(true, true));
         }
-        result = Scoring.getScore(states);
-        assertEquals(result, 1);
+        for (int i = 5; i <= 9; i++) {
+            states.put(i, new StateOfLegs(true, false));
+        }
+        states.put(10, null);
+        assertEquals(Scoring.getScore(states), 2);
     }
+
+    @Test
+    public void testGetScore2IfLeftLegIsConstantlyRetracted() {
+        Map<Integer, StateOfLegs> states = new HashMap<>();
+        for (int i = 0; i <= 4; i++) {
+            states.put(i, new StateOfLegs(true, true));
+        }
+        for (int i = 5; i <= 9; i++) {
+            states.put(i, new StateOfLegs(false, true));
+        }
+        states.put(10, null);
+        assertEquals(Scoring.getScore(states), 2);
+    }
+
+
 
     /*
 (3) If both hindlimbs are retracted at the same time toward and
@@ -120,19 +149,24 @@ assigned a score of 3 (Fig. 1C).
     @Test
     public void testGetScore3() {
         Map<Integer, StateOfLegs> states = new HashMap<>();
-        Integer result = Scoring.getScore(states);
-        assertEquals(result, null);
+        assertEquals(Scoring.getScore(states), null);
         //
-        for (int i = 1; i <= 3; i++) {
-            states.put(i, new StateOfLegs(false, false));
+        for (int i = 0; i < Scoring.MIN_FRAMES_SCORED; i++) {
+            states.put(i, new StateOfLegs(true, true));
         }
-        result = Scoring.getScore(states);
-        assertEquals(result, 2);
+        assertEquals(Scoring.getScore(states), 0);
         //
         StateOfLegs state3 = new StateOfLegs();
         state3.setScore3(true);
-        states.put(4, state3);
-        result = Scoring.getScore(states);
-        assertEquals(result, 3);
+        states.put(Scoring.MIN_FRAMES_SCORED, state3);
+        assertEquals(Scoring.getScore(states), 3);
+    }
+    @Test
+    public void testGetScore3IfOnly1FrameScored() {
+        Map<Integer, StateOfLegs> states = new HashMap<>();
+        StateOfLegs state3 = new StateOfLegs();
+        state3.setScore3(true);
+        states.put(0, state3);
+        assertEquals(Scoring.getScore(states), 3);
     }
 }

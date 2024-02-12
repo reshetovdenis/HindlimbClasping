@@ -45,9 +45,11 @@ import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import static com.denisreshetov.Scoring.getScore;
+
 public class FXMLController {
     private Parent originalMediaViewParent;
-    private static final Integer MAX_FRAME = 13;
+    public static final Integer MAX_FRAME = 13;
     @FXML
     private MediaView mediaView;
     @FXML
@@ -144,6 +146,8 @@ public class FXMLController {
     @FXML
     private TableColumn<MouseData, String> mouseIdColumn;
     @FXML
+    private TableColumn<MouseData, String> mouseScoreColumn;
+    @FXML
     private TableColumn<MouseData, String> timeColumn;
     @FXML
     private TableColumn<MouseData, String> fileColumn;
@@ -226,22 +230,27 @@ public class FXMLController {
         moveToNextFrame();
         refreshScoringTab();
         updateProjectXML();
+        updateMiceTableView();
     }
 
     public void handleRescore(ActionEvent actionEvent) {
         mouseToScoring.put(selectedMouse, new HashMap<>());
-        refreshScoringTab();
+        moveToFrame(0);
         updateProjectXML();
+        updateMiceTableView();
     }
 
 
     public static class MouseData {
         private final SimpleStringProperty mouseId;
+
+        private final SimpleStringProperty score;
         private final SimpleStringProperty time;
         private final SimpleStringProperty file;
 
-        public MouseData(String mouseId, String time, String file) {
+        public MouseData(String mouseId, String score, String time, String file) {
             this.mouseId = new SimpleStringProperty(mouseId);
+            this.score = new SimpleStringProperty(score);
             this.time = new SimpleStringProperty(time);
             this.file = new SimpleStringProperty(file);
         }
@@ -295,11 +304,18 @@ public class FXMLController {
             Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
             double seconds = time.toMillis() / 1000.0;
             String formattedTime = String.format("%.1f", seconds);
-            miceTableView.getItems().add(new MouseData(id, formattedTime, correspondingVideo.getName()));
+            String score = getMouseScore(id);
+            miceTableView.getItems().add(new MouseData(id, score, formattedTime, correspondingVideo.getName()));
         }
         if (currentMouseIndex != null) {
             miceTableView.getSelectionModel().select(currentMouseIndex);
         }
+    }
+
+    private String getMouseScore(String id) {
+        Map<Integer, StateOfLegs> states = mouseToScoring.get(id);
+        Integer score = getScore(states);
+        return score == null? "NA" : getScore(states).toString();
     }
 
     public void initialize() {
@@ -325,6 +341,7 @@ public class FXMLController {
             }
         });
         mouseIdColumn.setCellValueFactory(cellData -> cellData.getValue().mouseId);
+        mouseScoreColumn.setCellValueFactory(cellData -> cellData.getValue().score);
         timeColumn.setCellValueFactory(cellData -> cellData.getValue().time);
         fileColumn.setCellValueFactory(cellData -> cellData.getValue().file);
 
@@ -359,6 +376,9 @@ public class FXMLController {
     private void setSelectedMouse(String mouseId) {
         this.selectedMouse = mouseId;
         mouseIdInput.setText(mouseId);
+        if(this.selectedMouse != mouseId){
+            currentFrame = 0;
+        }
     }
 
     private void refreshScoringTab() {
@@ -418,7 +438,6 @@ public class FXMLController {
 
     private void setVideo(File file) {
         selectedVideo = file;
-        currentFrame = 0;
         if (file != null) {
             String path = file.toURI().toString();
             Media media = new Media(path);
@@ -629,7 +648,7 @@ public class FXMLController {
         Map<String, Integer> scores = new HashMap<>();
         for (String mouse : miceIds) {
             Map<Integer, StateOfLegs> states = mouseToScoring.get(mouse);
-            Integer score = Scoring.getScore(states);
+            Integer score = getScore(states);
             scores.put(mouse, score);
         }
 
@@ -951,7 +970,6 @@ public class FXMLController {
                 miceTableView.getSelectionModel().select(++currentMouseIndex);
             }
         }
-
     }
 
     public void setLegState(boolean isLeftLeg, boolean isLegOk) {
@@ -969,8 +987,7 @@ public class FXMLController {
         if (!legState.toString().matches(".*-.*")) {
             moveToNextFrame();
         }
-        refreshScoringTab();
-        updateProjectXML();
+        updateMiceTableView();
     }
 
     public void handleLeftRetracted(ActionEvent actionEvent) {
@@ -994,7 +1011,6 @@ public class FXMLController {
                 .computeIfAbsent(selectedMouse, k -> new HashMap<>());
         mouseStates.put(currentFrame, null);
         moveToNextFrame();
-        refreshScoringTab();
-        updateProjectXML();
+        updateMiceTableView();
     }
 }
