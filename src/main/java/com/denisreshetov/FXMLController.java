@@ -347,20 +347,9 @@ public class FXMLController {
 
         miceTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                if (currentMouseIndex != miceTableView.getSelectionModel().getSelectedIndex()) {
-                    currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
-                    currentFrame = 0;
-                    pausePlaying();
-                    MouseData selectedMouseData = newSelection;
-                    String mouseId = selectedMouseData.getMouseId();
-                    setSelectedMouse(mouseId);
-                    File correspondingFile = mouseIdToFileMap.get(mouseId);
-                    pendingSeekTime = getTimeOfMouse(mouseId);
-                    if (!correspondingFile.equals(selectedVideo)) {
-                        videoListView.getSelectionModel().select(correspondingFile.getName());
-                    } else {
-                        setVideo(selectedVideo);
-                    }
+                if (currentMouseIndex == null || currentMouseIndex != miceTableView.getSelectionModel().getSelectedIndex()) {
+                    doAfterMouseSelection(newSelection.getMouseId());
+                    updateProjectXML();
                 }
             }
         });
@@ -368,6 +357,27 @@ public class FXMLController {
             setVideo(selectedVideo);
         }
         updateSelection(true);
+        doMouseSelectionOnInit(miceIds.get(currentMouseIndex));
+    }
+
+    private void doMouseSelectionOnInit(String mouseId) {
+        if (currentMouseIndex != null) {
+            doAfterMouseSelection(mouseId);
+        }
+    }
+
+    private void doAfterMouseSelection(String mouseId) {
+        currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
+        currentFrame = 0;
+        pausePlaying();
+        setSelectedMouse(mouseId);
+        File correspondingFile = mouseIdToFileMap.get(mouseId);
+        pendingSeekTime = getTimeOfMouse(mouseId);
+        if (!correspondingFile.equals(selectedVideo)) {
+            videoListView.getSelectionModel().select(correspondingFile.getName());
+        } else {
+            setVideo(selectedVideo);
+        }
     }
 
     private Duration getTimeOfMouse(String mouseId) {
@@ -715,7 +725,6 @@ public class FXMLController {
                 loadDataFromProjectXML(xmlFile);
                 updateVideoListView();
                 updateMiceTableView();
-                updateSelection(true);
             } else {
                 // Handle the case where the XML file does not exist in the directory
             }
