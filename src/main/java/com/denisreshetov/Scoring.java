@@ -39,7 +39,7 @@ public class Scoring {
         return false;
     }
 
-    protected static int MIN_FRAMES_SCORED = 8;
+    protected static int MIN_FRAMES_SCORED = 7;
     public static Integer getScore(Map<Integer, StateOfLegs> states){
         boolean isScore3 = isScore3(states);
         if(isScore3){

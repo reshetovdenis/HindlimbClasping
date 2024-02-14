@@ -96,14 +96,14 @@ the mouse is assigned a score of 0 (Fig. 1A).
     public void testGetScore2IfCumulativeRetractionIsHalfAndAboveTime() {
         Map<Integer, StateOfLegs> states = new HashMap<>();
         states.put(0, null);
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(false, true));
         }
-        for (int i = 4; i < Scoring.MIN_FRAMES_SCORED; i++) {
+        for (int i = Scoring.MIN_FRAMES_SCORED; i < 2*Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(true, false));
         }
         assertEquals(Scoring.getScore(states), 2);
-        states.put(Scoring.MIN_FRAMES_SCORED, new StateOfLegs(true, true));
+        states.put(2*Scoring.MIN_FRAMES_SCORED, new StateOfLegs(true, true));
         assertEquals(Scoring.getScore(states), 1);
     }
 
