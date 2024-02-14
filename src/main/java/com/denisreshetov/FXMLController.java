@@ -988,6 +988,7 @@ public class FXMLController {
         if (!legState.toString().matches(".*-.*")) {
             moveToNextFrame();
         }
+        refreshScoringTab();
         updateMiceTableView();
         updateProjectXML();
     }

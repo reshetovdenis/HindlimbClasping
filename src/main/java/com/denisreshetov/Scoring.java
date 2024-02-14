@@ -6,7 +6,6 @@ public class Scoring {
     public static Double getRetractedFraction(Map<Integer, StateOfLegs> states, boolean isLeft){
         int countTrue = 0;
         int countFalse = 0;
-        int countNA = 0;
         for(StateOfLegs state: states.values()){
             if(state != null){
                 Boolean legState = state.getRightOK();
@@ -19,14 +18,10 @@ public class Scoring {
                     } else {
                         countFalse++;
                     }
-                } else {
-                    countNA++;
                 }
-            } else {
-                countNA++;
             }
         }
-        if(countNA >= countTrue && countNA >= countFalse){
+        if(countTrue + countFalse < MIN_FRAMES_SCORED){
             return null;
         }
         return (double)countFalse/(double)(countTrue + countFalse);

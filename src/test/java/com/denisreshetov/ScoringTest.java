@@ -12,32 +12,26 @@ public class ScoringTest {
     @Test
     public void testGetConsensusLegState() {
         Map<Integer, StateOfLegs> states = new HashMap<>();
-        Double result = Scoring.getRetractedFraction(states, true);
-        assertEquals(result, null);
-        result = Scoring.getRetractedFraction(states, false);
-        assertEquals(result, null);
-        //
-        for (int i = 1; i <= 3; i++) {
+        for (int i = 0; i < Scoring.MIN_FRAMES_SCORED-1; i++) {
             states.put(i, new StateOfLegs(false, false));
         }
-        result = Scoring.getRetractedFraction(states, true);
-        assertEquals(result, 1);
-        result = Scoring.getRetractedFraction(states, false);
-        assertEquals(result, 1);
+        assertEquals(Scoring.getRetractedFraction(states, true), null);
+        assertEquals(Scoring.getRetractedFraction(states, false), null);
         //
-        for (int i = 4; i <= 6; i++) {
+        states.put(Scoring.MIN_FRAMES_SCORED-1, new StateOfLegs(false, false));
+        assertEquals(Scoring.getRetractedFraction(states, true), 1);
+
+        //
+        for (int i = Scoring.MIN_FRAMES_SCORED; i < 2*Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(true, false));
         }
-        result = Scoring.getRetractedFraction(states, true);
-        assertEquals(result, 0.5);
-        result = Scoring.getRetractedFraction(states, false);
-        assertEquals(result, 1);
+        assertEquals(Scoring.getRetractedFraction(states, true), 0.5);
+        assertEquals(Scoring.getRetractedFraction(states, false), 1);
         //
-        for (int i = 7; i <= 12; i++) {
+        for (int i = 2*Scoring.MIN_FRAMES_SCORED; i < 4*Scoring.MIN_FRAMES_SCORED; i++) {
             states.put(i, new StateOfLegs(true, true));
         }
-        result = Scoring.getRetractedFraction(states, false);
-        assertEquals(result, 0.5);
+        assertEquals(Scoring.getRetractedFraction(states, false), 0.5);
     }
     @Test
     public void testGetScoreNull() {
