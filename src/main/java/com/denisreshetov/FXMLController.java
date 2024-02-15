@@ -351,6 +351,7 @@ public class FXMLController {
     private void doAfterMouseSelection(String mouseId) {
         currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
         currentFrame = 0;
+        angleInput.setText("");
         pausePlaying();
         setSelectedMouse(mouseId);
         File correspondingFile = mouseIdToFileMap.get(mouseId);
@@ -997,7 +998,6 @@ public class FXMLController {
             legState.setAngle(angleValue);
             moveToNextFrame();
             refreshScoringTab();
-            angleInput.setText("");
             updateMiceTableView();
             updateProjectXML();
         } else {
