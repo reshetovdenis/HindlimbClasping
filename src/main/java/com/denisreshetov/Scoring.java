@@ -25,12 +25,14 @@ public class Scoring {
     public static Double getMedianAngle(Map<Integer, StateOfLegs> states){
         List<Integer> angles = new ArrayList<>();
 
-        // Filter nulls and extract angles
-        for (StateOfLegs state : states.values()) {
-            if (state != null) {
-                angles.add(state.getAngle());
+        if(states != null){
+            for (StateOfLegs state : states.values()) {
+                if (state != null) {
+                    angles.add(state.getAngle());
+                }
             }
         }
+
         if(angles.size() < MIN_FRAMES_SCORED){
             return null;
         }
