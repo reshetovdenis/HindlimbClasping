@@ -45,8 +45,6 @@ import java.util.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import static com.denisreshetov.Scoring.getScore;
-
 public class FXMLController {
     private Parent originalMediaViewParent;
     public static final Integer MAX_FRAME = 13;
@@ -97,25 +95,16 @@ public class FXMLController {
     private TextField mouseIdInput;
 
     @FXML
+    private TextField angleInput;
+
+    @FXML
     private Button submitMouseIdButton;
 
     @FXML
     private Button rescore;
 
     @FXML
-    private Button scoreIs3;
-
-    @FXML
-    private Button leftRetracted;
-
-    @FXML
-    private Button leftOK;
-
-    @FXML
-    private Button rightRetracted;
-
-    @FXML
-    private Button rightOK;
+    private Button submitAngle;
 
     @FXML
     private Button naFrame;
@@ -146,7 +135,7 @@ public class FXMLController {
     @FXML
     private TableColumn<MouseData, String> mouseIdColumn;
     @FXML
-    private TableColumn<MouseData, String> mouseScoreColumn;
+    private TableColumn<MouseData, String> mouseAngleColumn;
     @FXML
     private TableColumn<MouseData, String> timeColumn;
     @FXML
@@ -221,18 +210,6 @@ public class FXMLController {
         setButtonIcon(toggleFullScreenButton, "expand.png");
     }
 
-    public void handleScoreIs3(ActionEvent actionEvent) {
-        Map<Integer, StateOfLegs> mouseStates = mouseToScoring
-                .computeIfAbsent(selectedMouse, k -> new HashMap<>());
-        StateOfLegs legState = new StateOfLegs();
-        legState.setScore3(true);
-        mouseStates.put(currentFrame, legState);
-        moveToNextFrame();
-        refreshScoringTab();
-        updateProjectXML();
-        updateMiceTableView();
-    }
-
     public void handleRescore(ActionEvent actionEvent) {
         mouseToScoring.put(selectedMouse, new HashMap<>());
         moveToFrame(0);
@@ -244,13 +221,13 @@ public class FXMLController {
     public static class MouseData {
         private final SimpleStringProperty mouseId;
 
-        private final SimpleStringProperty score;
+        private final SimpleStringProperty meanAngle;
         private final SimpleStringProperty time;
         private final SimpleStringProperty file;
 
-        public MouseData(String mouseId, String score, String time, String file) {
+        public MouseData(String mouseId, String meanAngle, String time, String file) {
             this.mouseId = new SimpleStringProperty(mouseId);
-            this.score = new SimpleStringProperty(score);
+            this.meanAngle = new SimpleStringProperty(meanAngle);
             this.time = new SimpleStringProperty(time);
             this.file = new SimpleStringProperty(file);
         }
@@ -304,18 +281,18 @@ public class FXMLController {
             Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
             double seconds = time.toMillis() / 1000.0;
             String formattedTime = String.format("%.1f", seconds);
-            String score = getMouseScore(id);
-            miceTableView.getItems().add(new MouseData(id, score, formattedTime, correspondingVideo.getName()));
+            String meanAngle = getMeanAngle(id);
+            miceTableView.getItems().add(new MouseData(id, meanAngle, formattedTime, correspondingVideo.getName()));
         }
         if (currentMouseIndex != null) {
             miceTableView.getSelectionModel().select(currentMouseIndex);
         }
     }
 
-    private String getMouseScore(String id) {
+    private String getMeanAngle(String id) {
         Map<Integer, StateOfLegs> states = mouseToScoring.get(id);
-        Integer score = getScore(states);
-        return score == null ? "NA" : getScore(states).toString();
+        Double score = Scoring.getMeanAngle(states);
+        return score == null ? "NA" : new DecimalFormat("0.0").format(score);
     }
 
     public void initialize() {
@@ -341,7 +318,7 @@ public class FXMLController {
             }
         });
         mouseIdColumn.setCellValueFactory(cellData -> cellData.getValue().mouseId);
-        mouseScoreColumn.setCellValueFactory(cellData -> cellData.getValue().score);
+        mouseAngleColumn.setCellValueFactory(cellData -> cellData.getValue().meanAngle);
         timeColumn.setCellValueFactory(cellData -> cellData.getValue().time);
         fileColumn.setCellValueFactory(cellData -> cellData.getValue().file);
 
@@ -395,7 +372,7 @@ public class FXMLController {
 
     private void refreshScoringTab() {
         frameButtons.getChildren().clear();
-        Button[] legButtons = {rescore, scoreIs3, leftOK, leftRetracted, rightOK, rightRetracted, naFrame};
+        Button[] legButtons = {rescore, submitAngle, naFrame};
         scoringView.setVisible(false);
         noMouseSelectedLabel.setVisible(true);
         for (Button b : legButtons) {
@@ -592,7 +569,7 @@ public class FXMLController {
                 mediaPlayer.totalDurationProperty()));
 
         // Set initial seek to start position when MediaPlayer is ready
-        if (mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
+        if (mediaPlayer.getStatus() != null && mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             Duration seekTime = Duration.seconds(0);
             if (pendingSeekTime != null && selectedMouse != null) {
                 seekTime = pendingSeekTime;
@@ -657,11 +634,12 @@ public class FXMLController {
 
     @FXML
     private void handleExport(ActionEvent actionEvent) {
-        Map<String, Integer> scores = new HashMap<>();
+        Map<String, Double> meanAngles = new HashMap<>();
+        Map<String, Double> medianAngles = new HashMap<>();
         for (String mouse : miceIds) {
             Map<Integer, StateOfLegs> states = mouseToScoring.get(mouse);
-            Integer score = getScore(states);
-            scores.put(mouse, score);
+            meanAngles.put(mouse, Scoring.getMeanAngle(states));
+            medianAngles.put(mouse, Scoring.getMedianAngle(states));
         }
 
         FileChooser fileChooser = new FileChooser();
@@ -672,11 +650,11 @@ public class FXMLController {
 
         File file = fileChooser.showSaveDialog(null);
         if (file != null) {
-            exportScoresToExcel(scores, file);
+            exportScoresToExcel(meanAngles, medianAngles, file);
         }
     }
 
-    private void exportScoresToExcel(Map<String, Integer> scores, File file) {
+    private void exportScoresToExcel(Map<String, Double> meanAngles, Map<String, Double> medianAngles, File file) {
         try (Workbook workbook = new XSSFWorkbook();
              FileOutputStream fileOut = new FileOutputStream(file)) {
             Sheet sheet = workbook.createSheet("Scores");
@@ -684,19 +662,26 @@ public class FXMLController {
             int rowNum = 0;
             // Creating header row
             Row headerRow = sheet.createRow(rowNum++);
-            headerRow.createCell(0).setCellValue("Mouse ID");
-            headerRow.createCell(1).setCellValue("Score");
+            headerRow.createCell(0).setCellValue("Mouse_ID");
+            headerRow.createCell(1).setCellValue("Mean_angle");
+            headerRow.createCell(2).setCellValue("Median_angle");
 
             // Filling data
-            List<String> ids = scores.keySet().stream().sorted().toList();
+            List<String> ids = meanAngles.keySet().stream().sorted().toList();
             for (String id : ids) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(id);
-                Integer score = scores.get(id);
-                if (score != null) {
-                    row.createCell(1).setCellValue(score);
+                Double meanAngle = meanAngles.get(id);
+                if (meanAngle != null) {
+                    row.createCell(1).setCellValue(meanAngle);
                 } else {
                     row.createCell(1).setCellValue("NA");
+                }
+                Double medianAngle = medianAngles.get(id);
+                if (medianAngle != null) {
+                    row.createCell(2).setCellValue(medianAngle);
+                } else {
+                    row.createCell(2).setCellValue("NA");
                 }
             }
             // Auto size columns
@@ -980,40 +965,30 @@ public class FXMLController {
         }
     }
 
-    public void setLegState(boolean isLeftLeg, boolean isLegOk) {
-        StateOfLegs legState = mouseToScoring
-                .computeIfAbsent(selectedMouse, k -> new HashMap<>())
-                .computeIfAbsent(currentFrame, k -> new StateOfLegs());
-        if (legState == null) {//When was initially marked as NA
-            legState = new StateOfLegs();
+    public void handleSubmitAngle() {
+        String angleTextValue = angleInput.getText();
+        Integer angleValue = null;
+        try {
+            angleValue = Integer.parseInt(angleTextValue);
+        } catch (Exception e){
+
         }
-        if (isLeftLeg) {
-            legState.setLeftOK(isLegOk);
-        } else {
-            legState.setRightOK(isLegOk);
+        if(angleValue > 180 || angleValue < 0){
+            angleValue = null;
         }
-        if (!legState.toString().matches(".*-.*")) {
+        if(angleValue != null){
+            StateOfLegs legState = mouseToScoring
+                    .computeIfAbsent(selectedMouse, k -> new HashMap<>())
+                    .computeIfAbsent(currentFrame, k -> new StateOfLegs());
+            if (legState == null) {//When was initially marked as NA
+                legState = new StateOfLegs();
+            }
+            legState.setAngle(angleValue);
             moveToNextFrame();
+            refreshScoringTab();
+            updateMiceTableView();
+            updateProjectXML();
         }
-        refreshScoringTab();
-        updateMiceTableView();
-        updateProjectXML();
-    }
-
-    public void handleLeftRetracted(ActionEvent actionEvent) {
-        setLegState(true, false);
-    }
-
-    public void handleLeftOK(ActionEvent actionEvent) {
-        setLegState(true, true);
-    }
-
-    public void handleRightRetracted(ActionEvent actionEvent) {
-        setLegState(false, false);
-    }
-
-    public void handleRightOK(ActionEvent actionEvent) {
-        setLegState(false, true);
     }
 
     public void handleNAFrame(ActionEvent actionEvent) {

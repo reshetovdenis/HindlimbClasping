@@ -1,66 +1,50 @@
 package com.denisreshetov;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class Scoring {
-    public static Double getRetractedFraction(Map<Integer, StateOfLegs> states, boolean isLeft){
-        int countTrue = 0;
-        int countFalse = 0;
+    public static Double getMeanAngle(Map<Integer, StateOfLegs> states){
+        int count = 0;
+        int sum = 0;
         for(StateOfLegs state: states.values()){
-            if(state != null){
-                Boolean legState = state.getRightOK();
-                if(isLeft){
-                    legState = state.getLeftOK();
-                }
-                if(legState != null){
-                    if(legState){
-                        countTrue++;
-                    } else {
-                        countFalse++;
-                    }
-                }
+            if(state != null && state.getAngle() != null){
+                count++;
+                sum += state.getAngle();
             }
         }
-        if(countTrue + countFalse < MIN_FRAMES_SCORED){
+        if(count < MIN_FRAMES_SCORED){
             return null;
         }
-        return (double)countFalse/(double)(countTrue + countFalse);
+        return (double)sum/(double)(count);
     }
-    public static boolean isScore3(Map<Integer, StateOfLegs> states){
-        if(states != null){
-            for(StateOfLegs state: states.values()){
-                if(state != null){
-                    if(state.getScore3() != null && state.getScore3()){
-                        return true;
-                    }
-                }
+    public static Double getMedianAngle(Map<Integer, StateOfLegs> states){
+        List<Integer> angles = new ArrayList<>();
+
+        // Filter nulls and extract angles
+        for (StateOfLegs state : states.values()) {
+            if (state != null) {
+                angles.add(state.getAngle());
             }
         }
-        return false;
+        if(angles.size() < MIN_FRAMES_SCORED){
+            return null;
+        }
+
+        Collections.sort(angles);
+
+        // Calculate median
+        int size = angles.size();
+        if (size % 2 == 1) {
+            // Odd number of elements
+            return (double)angles.get(size / 2);
+        } else {
+            // Even number of elements, average the two middle elements
+            return (double)(angles.get(size / 2 - 1) + angles.get(size / 2)) / 2.0;
+        }
     }
 
     protected static int MIN_FRAMES_SCORED = 7;
-    public static Integer getScore(Map<Integer, StateOfLegs> states){
-        boolean isScore3 = isScore3(states);
-        if(isScore3){
-            return 3;
-        }
-        if(states == null || states.size() < MIN_FRAMES_SCORED){
-            return null;
-        }
-
-        Double leftRetractedFraction = getRetractedFraction(states, true);
-        Double rightRetractedFraction = getRetractedFraction(states, false);
-        if(leftRetractedFraction == null || rightRetractedFraction == null){
-            return null;
-        }
-
-        if((leftRetractedFraction + rightRetractedFraction) == 0){
-            return 0;
-        } else if ( (leftRetractedFraction < 0.5) && (rightRetractedFraction < 0.5) ) {
-            return 1;
-        } else {
-            return 2;
-        }
-    }
 }
