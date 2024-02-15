@@ -351,7 +351,6 @@ public class FXMLController {
     private void doAfterMouseSelection(String mouseId) {
         currentMouseIndex = miceTableView.getSelectionModel().getSelectedIndex();
         currentFrame = 0;
-        angleInput.setText("");
         pausePlaying();
         setSelectedMouse(mouseId);
         File correspondingFile = mouseIdToFileMap.get(mouseId);
@@ -423,7 +422,10 @@ public class FXMLController {
     }
 
     private String getCurrentAngleText(){
-        Integer angle = mouseToScoring.get(selectedMouse).get(currentFrame).getAngle();
+        Integer angle = null;
+        if(mouseToScoring.get(selectedMouse) != null && mouseToScoring.get(selectedMouse).get(currentFrame) != null){
+            angle = mouseToScoring.get(selectedMouse).get(currentFrame).getAngle();
+        }
         return angle == null? "" : angle.toString();
     }
 
@@ -623,7 +625,7 @@ public class FXMLController {
     }
 
     private void initializeScoringPlayer() {
-        if (scoringPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
+        if (scoringPlayer.getStatus() != null && scoringPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             Duration seekTime = Duration.seconds(0);
             if (pendingSeekTime != null && selectedMouse != null) {
                 seekTime = pendingSeekTime;
