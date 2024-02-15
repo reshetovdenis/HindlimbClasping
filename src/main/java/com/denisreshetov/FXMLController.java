@@ -335,6 +335,11 @@ public class FXMLController {
         }
         updateSelection(true);
         doMouseSelectionOnInit(miceIds.get(currentMouseIndex));
+        angleInput.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                handleSubmitAngle();
+            }
+        });
     }
 
     private void doMouseSelectionOnInit(String mouseId) {
@@ -390,11 +395,11 @@ public class FXMLController {
             Label experimentSec = new Label("Test time:");
             frameButtons.getChildren().add(experimentSec);
             for (int i = 0; i <= MAX_FRAME; i++) {
-                String buttonName = "-|-\n" + i;
+                String buttonName = "-\n" + i;
                 if (mouseToScoring.get(selectedMouse) != null &&
                         mouseToScoring.get(selectedMouse).containsKey(i)) {
                     StateOfLegs state = mouseToScoring.get(selectedMouse).get(i);
-                    buttonName = StateOfLegs.text(state) + "\n" + i;
+                    buttonName = StateOfLegs.text(state) + "°\n" + i;
                 }
                 Button button = new Button(buttonName);
                 button.setId("frameButton" + i);
@@ -412,7 +417,13 @@ public class FXMLController {
                     frameButtons.getChildren().add(button);
                 }
             }
+            angleInput.setText(getCurrentAngleText());
         }
+    }
+
+    private String getCurrentAngleText(){
+        Integer angle = mouseToScoring.get(selectedMouse).get(currentFrame).getAngle();
+        return angle == null? "" : angle.toString();
     }
 
     private void moveToFrame(int frame) {
@@ -986,8 +997,19 @@ public class FXMLController {
             legState.setAngle(angleValue);
             moveToNextFrame();
             refreshScoringTab();
+            angleInput.setText("");
             updateMiceTableView();
             updateProjectXML();
+        } else {
+            // Create confirmation dialog
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Wrong Angle");
+            alert.setHeaderText("Wrong Angle");
+            alert.setContentText("Only angles between 0 and 120 are allowed.\n" +
+                    "You've tried to submit: \""+angleInput.getText()+"\"");
+            ButtonType buttonOK = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+            alert.getButtonTypes().setAll(buttonOK);
+            Optional<ButtonType> result = alert.showAndWait();
         }
     }
 
