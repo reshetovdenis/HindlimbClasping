@@ -334,7 +334,14 @@ public class FXMLController {
             setVideo(selectedVideo);
         }
         updateSelection(true);
-        doMouseSelectionOnInit(miceIds.get(currentMouseIndex));
+        if(miceIds.size() > 0){
+            if(currentMouseIndex != null){
+                doMouseSelectionOnInit(miceIds.get(currentMouseIndex));
+            } else {
+                doMouseSelectionOnInit(miceIds.get(0));
+            }
+        }
+
         angleInput.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 handleSubmitAngle();
