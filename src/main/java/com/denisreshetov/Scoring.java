@@ -9,10 +9,12 @@ public class Scoring {
     public static Double getMeanAngle(Map<Integer, StateOfLegs> states){
         int count = 0;
         int sum = 0;
-        for(StateOfLegs state: states.values()){
-            if(state != null && state.getAngle() != null){
-                count++;
-                sum += state.getAngle();
+        if(states != null){
+            for(StateOfLegs state: states.values()){
+                if(state != null && state.getAngle() != null){
+                    count++;
+                    sum += state.getAngle();
+                }
             }
         }
         if(count < MIN_FRAMES_SCORED){
