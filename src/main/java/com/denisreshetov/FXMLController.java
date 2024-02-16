@@ -450,8 +450,10 @@ public class FXMLController {
         selectedVideo = file;
         if (file != null) {
             String path = file.toURI().toString();
-            Media media = new Media(path);
-            mediaPlayer = new MediaPlayer(media); // Initialize MediaPlayer first
+            if(mediaPlayer != null){
+                mediaPlayer.dispose();
+            }
+            mediaPlayer = new MediaPlayer(new Media(path)); // Initialize MediaPlayer first
             mediaPlayer.statusProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == MediaPlayer.Status.READY) {
                     initializeVideoPlayer();
@@ -460,7 +462,10 @@ public class FXMLController {
             mediaView.setMediaPlayer(mediaPlayer);
             videoName.setText(file.getName());
             //---
-            scoringPlayer = new MediaPlayer(media); // Initialize MediaPlayer first
+            if(scoringPlayer != null){
+                scoringPlayer.dispose();
+            }
+            scoringPlayer = new MediaPlayer(new Media(path)); // Initialize MediaPlayer first
             scoringPlayer.statusProperty().addListener((observable, oldValue, newValue) -> {
                 if (newValue == MediaPlayer.Status.READY) {
                     initializeScoringPlayer();
@@ -472,7 +477,6 @@ public class FXMLController {
             scoringView.setMediaPlayer(null);
             videoName.setText("");
         }
-//        updateProjectXML();
     }
 
     @FXML
@@ -590,7 +594,7 @@ public class FXMLController {
                 mediaPlayer.totalDurationProperty()));
 
         // Set initial seek to start position when MediaPlayer is ready
-        if (mediaPlayer.getStatus() != null && mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
+        if (mediaPlayer.getStatus().equals(MediaPlayer.Status.READY)) {
             Duration seekTime = Duration.seconds(0);
             if (pendingSeekTime != null && selectedMouse != null) {
                 seekTime = pendingSeekTime;
