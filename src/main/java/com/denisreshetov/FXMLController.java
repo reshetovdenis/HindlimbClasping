@@ -346,7 +346,7 @@ public class FXMLController {
 
     private String getMeanAngle(String id) {
         Map<Integer, StateOfLegs> states = mouseToScoring.get(id);
-        Double score = Scoring.getMeanAngle(states);
+        Double score = Scoring.getMedianStretching(states);
         return score == null ? "NA" : new DecimalFormat("0.0").format(score);
     }
 
@@ -728,12 +728,11 @@ public class FXMLController {
 
     @FXML
     private void handleExport(ActionEvent actionEvent) {
-        Map<String, Double> meanAngles = new HashMap<>();
+        Map<String, Double> medianStretches = new HashMap<>();
         Map<String, Double> medianAngles = new HashMap<>();
         for (String mouse : miceIds) {
             Map<Integer, StateOfLegs> states = mouseToScoring.get(mouse);
-            meanAngles.put(mouse, Scoring.getMeanAngle(states));
-            medianAngles.put(mouse, Scoring.getMedianAngle(states));
+            medianStretches.put(mouse, Scoring.getMedianStretching(states));
         }
 
         FileChooser fileChooser = new FileChooser();
@@ -744,11 +743,11 @@ public class FXMLController {
 
         File file = fileChooser.showSaveDialog(null);
         if (file != null) {
-            exportScoresToExcel(meanAngles, medianAngles, file);
+            exportScoresToExcel(medianStretches, file);
         }
     }
 
-    private void exportScoresToExcel(Map<String, Double> meanAngles, Map<String, Double> medianAngles, File file) {
+    private void exportScoresToExcel(Map<String, Double> medianStretches, File file) {
         try (Workbook workbook = new XSSFWorkbook();
              FileOutputStream fileOut = new FileOutputStream(file)) {
             Sheet sheet = workbook.createSheet("Scores");
@@ -764,22 +763,17 @@ public class FXMLController {
             }
 
             // Filling data
-            List<String> ids = meanAngles.keySet().stream().sorted().toList();
+            List<String> ids = medianStretches.keySet().stream().sorted().toList();
             for (String id : ids) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(id);
-                Double meanAngle = meanAngles.get(id);
+                Double meanAngle = medianStretches.get(id);
                 if (meanAngle != null) {
                     row.createCell(1).setCellValue(meanAngle);
                 } else {
                     row.createCell(1).setCellValue("NA");
                 }
-                Double medianAngle = medianAngles.get(id);
-                if (medianAngle != null) {
-                    row.createCell(2).setCellValue(medianAngle);
-                } else {
-                    row.createCell(2).setCellValue("NA");
-                }
+
                 List<StateOfLegs> states = new ArrayList<>();
                 if(mouseToScoring.containsKey(id)){
                     states = mouseToScoring.get(id).values().stream().toList();
@@ -788,12 +782,12 @@ public class FXMLController {
                     if(i < states.size() && states.get(i) != null){
                         try{
                             int value = Integer.parseInt(states.get(i).toString());
-                            row.createCell(3+i).setCellValue(value);
+                            row.createCell(2+i).setCellValue(value);
                         } catch (Exception e){
-                            row.createCell(3+i).setCellValue("NA");
+                            row.createCell(2+i).setCellValue("NA");
                         }
                     } else {
-                        row.createCell(3+i).setCellValue("NA");
+                        row.createCell(2+i).setCellValue("NA");
                     }
 
                 }

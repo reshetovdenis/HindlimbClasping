@@ -16,6 +16,10 @@ public class Measurement {
         this.endY = endY;
     }
 
+    public double getLength() {
+        return Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+    }
+
     @Override
     public String toString(){
         return Arrays.stream(new double[]{startX, startY, endX, endY})

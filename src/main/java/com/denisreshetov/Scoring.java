@@ -6,49 +6,32 @@ import java.util.List;
 import java.util.Map;
 
 public class Scoring {
-    public static Double getMeanAngle(Map<Integer, StateOfLegs> states){
-        int count = 0;
-        int sum = 0;
-        if(states != null){
-            for(StateOfLegs state: states.values()){
-                if(state != null && state.getAngle() != null){
-                    count++;
-                    sum += state.getAngle();
-                }
-            }
-        }
-        if(count < MIN_FRAMES_SCORED){
-            return null;
-        }
-        return (double)sum/(double)(count);
-    }
-    public static Double getMedianAngle(Map<Integer, StateOfLegs> states){
-        List<Integer> angles = new ArrayList<>();
-
+    protected static int MIN_FRAMES_SCORED = 7;
+    public static Double getMedianStretching(Map<Integer, StateOfLegs> states){
+        List<Double> stretches = new ArrayList<>();
         if(states != null){
             for (StateOfLegs state : states.values()) {
+
                 if (state != null) {
-                    angles.add(state.getAngle());
+                    Double stretching = state.getStretchingPercent();
+                    if(stretching != null){
+                        stretches.add(state.getStretchingPercent());
+                    }
                 }
             }
         }
-
-        if(angles.size() < MIN_FRAMES_SCORED){
+        if(stretches.size() < MIN_FRAMES_SCORED){
             return null;
         }
-
-        Collections.sort(angles);
-
+        Collections.sort(stretches);
         // Calculate median
-        int size = angles.size();
+        int size = stretches.size();
         if (size % 2 == 1) {
             // Odd number of elements
-            return (double)angles.get(size / 2);
+            return (double)stretches.get(size / 2);
         } else {
             // Even number of elements, average the two middle elements
-            return (double)(angles.get(size / 2 - 1) + angles.get(size / 2)) / 2.0;
+            return (double)(stretches.get(size / 2 - 1) + stretches.get(size / 2)) / 2.0;
         }
     }
-
-    protected static int MIN_FRAMES_SCORED = 7;
 }
