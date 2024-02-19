@@ -421,8 +421,10 @@ public class FXMLController {
     }
 
     private void handleMouseReleased(MouseEvent event) {
-        // Here, you could finalize the position of the ruler if needed
-        // For example, by making the ruler permanent or by enabling further adjustments
+        if(currentRuler != null){
+            double startX = currentRuler.getStartX();
+
+        }
     }
 
     private void doMouseSelectionOnInit(String mouseId) {
