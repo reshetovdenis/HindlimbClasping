@@ -778,7 +778,6 @@ public class FXMLController {
     @FXML
     private void handleExport(ActionEvent actionEvent) {
         Map<String, Double> medianStretches = new HashMap<>();
-        Map<String, Double> medianAngles = new HashMap<>();
         for (String mouse : miceIds) {
             Map<Integer, StateOfLegs> states = mouseToScoring.get(mouse);
             medianStretches.put(mouse, Scoring.getMedianStretching(states));
@@ -805,10 +804,9 @@ public class FXMLController {
             // Creating header row
             Row headerRow = sheet.createRow(rowNum++);
             headerRow.createCell(0).setCellValue("Mouse_ID");
-            headerRow.createCell(1).setCellValue("Mean_angle");
-            headerRow.createCell(2).setCellValue("Median_angle");
+            headerRow.createCell(1).setCellValue("Median_stretching");
             for(int i = 0; i <=13; i ++){
-                headerRow.createCell(3+i).setCellValue("Frame_"+i);
+                headerRow.createCell(2+i).setCellValue("Frame_"+i);
             }
 
             // Filling data
@@ -816,9 +814,9 @@ public class FXMLController {
             for (String id : ids) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(id);
-                Double meanAngle = medianStretches.get(id);
-                if (meanAngle != null) {
-                    row.createCell(1).setCellValue(meanAngle);
+                Double medianStretching = medianStretches.get(id);
+                if (medianStretching != null) {
+                    row.createCell(1).setCellValue(medianStretching);
                 } else {
                     row.createCell(1).setCellValue("NA");
                 }
@@ -829,16 +827,14 @@ public class FXMLController {
                 }
                 for(int i = 0; i <=13; i ++){
                     if(i < states.size() && states.get(i) != null){
-                        try{
-                            int value = Integer.parseInt(states.get(i).toString());
-                            row.createCell(2+i).setCellValue(value);
-                        } catch (Exception e){
+                        if(states.get(i).getStretchingPercent() != null){
+                            row.createCell(2+i).setCellValue(states.get(i).getStretchingPercent());
+                        } else {
                             row.createCell(2+i).setCellValue("NA");
                         }
                     } else {
                         row.createCell(2+i).setCellValue("NA");
                     }
-
                 }
             }
             // Auto size columns
