@@ -46,7 +46,7 @@ public class StateOfLegs {
                 approximations.add(BODY_LONGER_THE_LEG_TIMES * betweenLegsLength / body.getLength());
             }
             if (approximations.size() > 0) {
-                setStretchingPercent(Collections.min(approximations));
+                setStretchingPercent(100 * Collections.min(approximations));
             }
         }
     }
@@ -92,7 +92,7 @@ public class StateOfLegs {
 
     public static StateOfLegs fromText(String text) {
         if (text != null) {
-            String[] measurementInfo = text.split("|");
+            String[] measurementInfo = text.split("\\|");
             if (measurementInfo.length == 4) {
                 StateOfLegs state = new StateOfLegs();
                 state.setLeftLeg(Measurement.fromText(measurementInfo[0]));
@@ -107,16 +107,16 @@ public class StateOfLegs {
 
     @Override
     public String toString() {
-        if (getStretchingPercent() != null) {
-            List<String> result = new ArrayList<>();
-            Measurement[] measurements = {leftLeg, rightLeg, betweenLegs, body};//Don't change the order
-            for (Measurement m : measurements) {
-                if (m != null) {
-                    result.add(m.toString());
-                } else {
-                    result.add("");
-                }
+        List<String> result = new ArrayList<>();
+        Measurement[] measurements = {leftLeg, rightLeg, betweenLegs, body};//Don't change the order
+        for (Measurement m : measurements) {
+            if (m != null) {
+                result.add(m.toString());
+            } else {
+                result.add("");
             }
+        }
+        if(result.size() > 0){
             return String.join("|", result);
         }
         return "NA";

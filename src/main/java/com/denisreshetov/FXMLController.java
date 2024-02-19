@@ -421,9 +421,26 @@ public class FXMLController {
     }
 
     private void handleMouseReleased(MouseEvent event) {
-        if(currentRuler != null){
+        if (currentRuler != null) {
             double startX = currentRuler.getStartX();
+            double startY = currentRuler.getStartY();
+            double endX = currentRuler.getEndX();
+            double endY = currentRuler.getEndY();
 
+            mouseToScoring.putIfAbsent(selectedMouse, new HashMap<>());
+            Map<Integer, StateOfLegs> scoring = mouseToScoring.get(selectedMouse);
+            scoring.putIfAbsent(currentFrame, new StateOfLegs());
+
+            if (currentRuler == leftRuler) {
+                scoring.get(currentFrame).setLeftLeg(new Measurement(startX, startY, endX, endY));
+            } else if (currentRuler == rightRuler) {
+                scoring.get(currentFrame).setRightLeg(new Measurement(startX, startY, endX, endY));
+            } else if (currentRuler == bothRuler) {
+                scoring.get(currentFrame).setBetweenLegs(new Measurement(startX, startY, endX, endY));
+            } else if (currentRuler == bodyRuler) {
+                scoring.get(currentFrame).setBody(new Measurement(startX, startY, endX, endY));
+            }
+            updateProjectXML();
         }
     }
 
