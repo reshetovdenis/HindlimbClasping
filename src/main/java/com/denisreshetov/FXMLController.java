@@ -48,6 +48,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class FXMLController {
+    private Line currentRuler;
     private Parent originalMediaViewParent;
     public static final Integer MAX_FRAME = 13;
     @FXML
@@ -61,7 +62,16 @@ public class FXMLController {
     private StackPane scoringPane;
 
     @FXML
-    private Line ruler;
+    private Line leftRuler;
+
+    @FXML
+    private Line rightRuler;
+
+    @FXML
+    private Line bothRuler;
+
+    @FXML
+    private Line bodyRuler;
 
     @FXML
     private Label noMouseSelectedLabel;
@@ -232,15 +242,36 @@ public class FXMLController {
     }
 
     public void handleLeft(ActionEvent actionEvent) {
+        highlight(left);
+        unHighlight(new Button[]{right, both, body});
+        currentRuler = leftRuler;
+    }
+
+    private void unHighlight(Button[] buttons) {
+        for(Button button: buttons){
+            button.getStyleClass().remove("selected-ruler-button");
+        }
+    }
+
+    private void highlight(Button button) {
+        button.getStyleClass().add("selected-ruler-button");
     }
 
     public void handleRight(ActionEvent actionEvent) {
+        highlight(right);
+        unHighlight(new Button[]{left, both, body});
+        currentRuler = rightRuler;
     }
     public void handleBoth(ActionEvent actionEvent) {
+        highlight(both);
+        unHighlight(new Button[]{right, left, body});
+        currentRuler = bothRuler;
     }
     public void handleBody(ActionEvent actionEvent) {
+        highlight(body);
+        unHighlight(new Button[]{right, both, left});
+        currentRuler = bodyRuler;
     }
-
 
     public static class MouseData {
         private final SimpleStringProperty mouseId;
@@ -366,22 +397,23 @@ public class FXMLController {
             }
         }
 
+        currentRuler = leftRuler;
         scoringPane.setOnMousePressed(this::handleMousePressed);
         scoringPane.setOnMouseDragged(this::handleMouseDragged);
         scoringPane.setOnMouseReleased(this::handleMouseReleased);
     }
 
     private void handleMousePressed(MouseEvent event) {
-        ruler.setStartX(event.getX());
-        ruler.setStartY(event.getY());
-        ruler.setEndX(event.getX());
-        ruler.setEndY(event.getY());
-        ruler.setVisible(true); // Make the ruler visible when you start drawing
+        currentRuler.setStartX(event.getX());
+        currentRuler.setStartY(event.getY());
+        currentRuler.setEndX(event.getX());
+        currentRuler.setEndY(event.getY());
+        currentRuler.setVisible(true); // Make the ruler visible when you start drawing
     }
 
     private void handleMouseDragged(MouseEvent event) {
-        ruler.setEndX(event.getX());
-        ruler.setEndY(event.getY());
+        currentRuler.setEndX(event.getX());
+        currentRuler.setEndY(event.getY());
     }
 
     private void handleMouseReleased(MouseEvent event) {
@@ -465,14 +497,6 @@ public class FXMLController {
                 }
             }
         }
-    }
-
-    private String getCurrentAngleText(){
-        Integer angle = null;
-        if(mouseToScoring.get(selectedMouse) != null && mouseToScoring.get(selectedMouse).get(currentFrame) != null){
-            angle = mouseToScoring.get(selectedMouse).get(currentFrame).getAngle();
-        }
-        return angle == null? "" : angle.toString();
     }
 
     private void moveToFrame(int frame) {

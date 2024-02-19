@@ -27,6 +27,12 @@
     -fx-background-color: #008000;
 }
 
+.unselected-ruler-button {
+}
+.selected-ruler-button {
+    -fx-background-color: #b2b4b8;
+}
+
 #videoSlider {
     -fx-control-inner-background: #666;
 }
