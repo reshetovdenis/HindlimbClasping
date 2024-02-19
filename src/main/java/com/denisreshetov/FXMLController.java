@@ -359,17 +359,9 @@ public class FXMLController {
         scoringPane.setOnMousePressed(this::handleMousePressed);
         scoringPane.setOnMouseDragged(this::handleMouseDragged);
         scoringPane.setOnMouseReleased(this::handleMouseReleased);
-
-        ruler.setStartX(0);
-        ruler.setStartY(0);
-        ruler.setEndX(10);
-        ruler.setEndY(10);
     }
 
     private void handleMousePressed(MouseEvent event) {
-        System.out.println("----");
-        System.out.println("X:" + event.getX());
-        System.out.println("Y:" + event.getY());
         ruler.setStartX(event.getX());
         ruler.setStartY(event.getY());
         ruler.setEndX(event.getX());

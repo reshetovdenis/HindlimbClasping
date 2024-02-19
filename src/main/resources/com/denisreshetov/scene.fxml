@@ -110,12 +110,14 @@
             <Tab text="Scoring">
                 <VBox fx:id="scoring" spacing="10" alignment="CENTER">
                     <Label fx:id="noMouseSelectedLabel" text="Select a mouse from the list on the right."/>
-                    <StackPane fx:id="scoringPane">
-                        <MediaView fx:id="scoringView" fitHeight="500"/>
-                        <Pane fx:id="drawingPane">
-                            <Line fx:id="ruler" visible="true" stroke="RED" strokeWidth="2"/>
-                        </Pane>
-                    </StackPane>
+                    <HBox alignment="CENTER">
+                        <StackPane fx:id="scoringPane">
+                            <Pane fx:id="drawingPane" minWidth="900">
+                                <MediaView fx:id="scoringView" fitHeight="500"/>
+                                <Line fx:id="ruler" visible="true" stroke="RED" strokeWidth="2"/>
+                            </Pane>
+                        </StackPane>
+                    </HBox>
 
                     <VBox alignment="CENTER" spacing="10">
                         <HBox fx:id="frameButtons" alignment="CENTER" spacing="10">
