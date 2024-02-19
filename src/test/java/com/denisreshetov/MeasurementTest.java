@@ -12,7 +12,7 @@ public class MeasurementTest {
         Assert.assertEquals(actualLength, expectedLength, 0.001, "The getLength method did not calculate the correct length.");
     }
 
-    @Test(dataProvider = "provideDataForGetLength")
+    @DataProvider
     public Object[][] provideDataForGetLength() {
         return new Object[][]{
                 {0.0, 0.0, 3.0, 4.0, 5.0}, // A 3-4-5 right triangle
