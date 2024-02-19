@@ -250,6 +250,7 @@ public class FXMLController {
     private void unHighlight(Button[] buttons) {
         for(Button button: buttons){
             button.getStyleClass().remove("selected-ruler-button");
+            button.getStyleClass().remove("selected-ruler-button");//It's not a bug
         }
     }
 
@@ -442,7 +443,34 @@ public class FXMLController {
                 scoring.get(currentFrame).setBody(new Measurement(startX, startY, endX, endY));
             }
             updateProjectXML();
+            doNext();
         }
+    }
+    private void doNext() {
+        Button[] allButtons = new Button[]{left, right, both, body};
+
+        if (currentRuler == leftRuler) {
+            transitionToNextRuler(rightRuler, right, allButtons);
+        } else if (currentRuler == rightRuler) {
+            transitionToNextRuler(bothRuler, both, allButtons);
+        } else if (currentRuler == bothRuler) {
+            transitionToNextRuler(bodyRuler, body, allButtons);
+        } else if (currentRuler == bodyRuler) {
+            currentRuler = null; // Resets the currentRuler to signify completion.
+            moveToNextFrame(); // Proceed to the next frame after the body ruler.
+        }
+    }
+
+    private void transitionToNextRuler(Line nextRuler, Button nextButton, Button[] allButtons) {
+        currentRuler = nextRuler;
+        highlight(nextButton);
+        unHighlight(excludeButton(allButtons, nextButton));
+    }
+
+    private Button[] excludeButton(Button[] allButtons, Button excludeButton) {
+        return Arrays.stream(allButtons)
+                .filter(button -> button != excludeButton)
+                .toArray(Button[]::new);
     }
 
     private void doMouseSelectionOnInit(String mouseId) {
