@@ -56,7 +56,7 @@
             <TableView fx:id="miceTableView" VBox.vgrow="ALWAYS" prefWidth="200">
                 <columns>
                     <TableColumn fx:id="mouseIdColumn" text="ID"/>
-                    <TableColumn fx:id="mouseAngleColumn" text="Mean angle"/>
+                    <TableColumn fx:id="mouseStretchingColumn" text="Stretching"/>
                     <TableColumn fx:id="timeColumn" text="Time"/>
                     <TableColumn fx:id="fileColumn" text="File" prefWidth="300"/>
                 </columns>

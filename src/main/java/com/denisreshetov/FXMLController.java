@@ -159,7 +159,7 @@ public class FXMLController {
     @FXML
     private TableColumn<MouseData, String> mouseIdColumn;
     @FXML
-    private TableColumn<MouseData, String> mouseAngleColumn;
+    private TableColumn<MouseData, String> mouseStretchingColumn;
     @FXML
     private TableColumn<MouseData, String> timeColumn;
     @FXML
@@ -276,13 +276,13 @@ public class FXMLController {
     public static class MouseData {
         private final SimpleStringProperty mouseId;
 
-        private final SimpleStringProperty meanAngle;
+        private final SimpleStringProperty medianStretching;
         private final SimpleStringProperty time;
         private final SimpleStringProperty file;
 
-        public MouseData(String mouseId, String meanAngle, String time, String file) {
+        public MouseData(String mouseId, String medianStretching, String time, String file) {
             this.mouseId = new SimpleStringProperty(mouseId);
-            this.meanAngle = new SimpleStringProperty(meanAngle);
+            this.medianStretching = new SimpleStringProperty(medianStretching);
             this.time = new SimpleStringProperty(time);
             this.file = new SimpleStringProperty(file);
         }
@@ -336,15 +336,15 @@ public class FXMLController {
             Duration time = fileToMouseIdMap.get(correspondingVideo).get(id);
             double seconds = time.toMillis() / 1000.0;
             String formattedTime = String.format("%.1f", seconds);
-            String meanAngle = getMeanAngle(id);
-            miceTableView.getItems().add(new MouseData(id, meanAngle, formattedTime, correspondingVideo.getName()));
+            String medianStretching = getMedianStretching(id);
+            miceTableView.getItems().add(new MouseData(id, medianStretching, formattedTime, correspondingVideo.getName()));
         }
         if (currentMouseIndex != null) {
             miceTableView.getSelectionModel().select(currentMouseIndex);
         }
     }
 
-    private String getMeanAngle(String id) {
+    private String getMedianStretching(String id) {
         Map<Integer, StateOfLegs> states = mouseToScoring.get(id);
         Double score = Scoring.getMedianStretching(states);
         return score == null ? "NA" : new DecimalFormat("0.0").format(score);
@@ -373,7 +373,7 @@ public class FXMLController {
             }
         });
         mouseIdColumn.setCellValueFactory(cellData -> cellData.getValue().mouseId);
-        mouseAngleColumn.setCellValueFactory(cellData -> cellData.getValue().meanAngle);
+        mouseStretchingColumn.setCellValueFactory(cellData -> cellData.getValue().medianStretching);
         timeColumn.setCellValueFactory(cellData -> cellData.getValue().time);
         fileColumn.setCellValueFactory(cellData -> cellData.getValue().file);
 
