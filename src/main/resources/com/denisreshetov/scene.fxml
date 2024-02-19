@@ -18,6 +18,9 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.layout.Pane?>
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.denisreshetov.FXMLController">
     <!-- Menu Bar at the top -->
     <top>
@@ -71,7 +74,8 @@
 
                         <MediaView fx:id="mediaView" fitHeight="500"/>
                         <HBox fx:id="mediaControl" alignment="CENTER" spacing="10">
-                            <Button fx:id="toggleFullScreenButton" text="" onAction="#handleMediaViewFullScreenToggle" disable="true">
+                            <Button fx:id="toggleFullScreenButton" text="" onAction="#handleMediaViewFullScreenToggle"
+                                    disable="true">
                                 <graphic>
                                     <ImageView>
                                         <Image url="@../../images/expand.png"/>
@@ -106,7 +110,13 @@
             <Tab text="Scoring">
                 <VBox fx:id="scoring" spacing="10" alignment="CENTER">
                     <Label fx:id="noMouseSelectedLabel" text="Select a mouse from the list on the right."/>
-                    <MediaView fx:id="scoringView" fitHeight="500"/>
+                    <StackPane fx:id="scoringPane">
+                        <MediaView fx:id="scoringView" fitHeight="500"/>
+                        <Pane fx:id="drawingPane">
+                            <Line fx:id="ruler" visible="true" stroke="RED" strokeWidth="2"/>
+                        </Pane>
+                    </StackPane>
+
                     <VBox alignment="CENTER" spacing="10">
                         <HBox fx:id="frameButtons" alignment="CENTER" spacing="10">
                         </HBox>

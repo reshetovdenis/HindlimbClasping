@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -19,6 +20,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.scene.shape.Line;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -54,6 +56,12 @@ public class FXMLController {
     private VBox mouseInput;
     @FXML
     private MediaView scoringView;
+
+    @FXML
+    private StackPane scoringPane;
+
+    @FXML
+    private Line ruler;
 
     @FXML
     private Label noMouseSelectedLabel;
@@ -347,6 +355,36 @@ public class FXMLController {
                 handleSubmitAngle();
             }
         });
+
+        scoringPane.setOnMousePressed(this::handleMousePressed);
+        scoringPane.setOnMouseDragged(this::handleMouseDragged);
+        scoringPane.setOnMouseReleased(this::handleMouseReleased);
+
+        ruler.setStartX(0);
+        ruler.setStartY(0);
+        ruler.setEndX(10);
+        ruler.setEndY(10);
+    }
+
+    private void handleMousePressed(MouseEvent event) {
+        System.out.println("----");
+        System.out.println("X:" + event.getX());
+        System.out.println("Y:" + event.getY());
+        ruler.setStartX(event.getX());
+        ruler.setStartY(event.getY());
+        ruler.setEndX(event.getX());
+        ruler.setEndY(event.getY());
+        ruler.setVisible(true); // Make the ruler visible when you start drawing
+    }
+
+    private void handleMouseDragged(MouseEvent event) {
+        ruler.setEndX(event.getX());
+        ruler.setEndY(event.getY());
+    }
+
+    private void handleMouseReleased(MouseEvent event) {
+        // Here, you could finalize the position of the ruler if needed
+        // For example, by making the ruler permanent or by enabling further adjustments
     }
 
     private void doMouseSelectionOnInit(String mouseId) {
@@ -690,6 +728,9 @@ public class FXMLController {
             headerRow.createCell(0).setCellValue("Mouse_ID");
             headerRow.createCell(1).setCellValue("Mean_angle");
             headerRow.createCell(2).setCellValue("Median_angle");
+            for(int i = 0; i <=13; i ++){
+                headerRow.createCell(3+i).setCellValue("Frame_"+i);
+            }
 
             // Filling data
             List<String> ids = meanAngles.keySet().stream().sorted().toList();
@@ -707,6 +748,23 @@ public class FXMLController {
                     row.createCell(2).setCellValue(medianAngle);
                 } else {
                     row.createCell(2).setCellValue("NA");
+                }
+                List<StateOfLegs> states = new ArrayList<>();
+                if(mouseToScoring.containsKey(id)){
+                    states = mouseToScoring.get(id).values().stream().toList();
+                }
+                for(int i = 0; i <=13; i ++){
+                    if(i < states.size() && states.get(i) != null){
+                        try{
+                            int value = Integer.parseInt(states.get(i).toString());
+                            row.createCell(3+i).setCellValue(value);
+                        } catch (Exception e){
+                            row.createCell(3+i).setCellValue("NA");
+                        }
+                    } else {
+                        row.createCell(3+i).setCellValue("NA");
+                    }
+
                 }
             }
             // Auto size columns
