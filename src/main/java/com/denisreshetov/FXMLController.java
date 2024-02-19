@@ -405,6 +405,7 @@ public class FXMLController {
 
     private void handleMousePressed(MouseEvent event) {
         if(currentRuler != null){
+            currentRuler.setVisible(true);
             currentRuler.setStartX(event.getX());
             currentRuler.setStartY(event.getY());
             currentRuler.setEndX(event.getX());
@@ -478,6 +479,9 @@ public class FXMLController {
     }
 
     private void refreshScoringTab() {
+        currentRuler = leftRuler;
+        highlight(left);
+        unHighlight(new Button[]{right, both,  body});
         frameButtons.getChildren().clear();
         Button[] legButtons = {rescore, left,  right, both,  body, naFrame};
         scoringView.setVisible(false);
@@ -501,7 +505,7 @@ public class FXMLController {
                 if (mouseToScoring.get(selectedMouse) != null &&
                         mouseToScoring.get(selectedMouse).containsKey(i)) {
                     StateOfLegs state = mouseToScoring.get(selectedMouse).get(i);
-                    buttonName = StateOfLegs.text(state) + "°\n" + i;
+                    buttonName = StateOfLegs.label(state) + "\n" + i;
                 }
                 Button button = new Button(buttonName);
                 button.setId("frameButton" + i);
@@ -519,7 +523,35 @@ public class FXMLController {
                     frameButtons.getChildren().add(button);
                 }
             }
+            //Draw rulers
+            drawRulers();
         }
+    }
+
+    private void drawRulers(){
+        Line[] rulers = {leftRuler, rightRuler, bothRuler, bodyRuler};
+        for(int i = 0; i < rulers.length; i++){
+            Line ruler = rulers[i];
+            ruler.setVisible(false);
+        }
+        if(mouseToScoring.containsKey(selectedMouse) && mouseToScoring.get(selectedMouse).containsKey(currentFrame)){
+            StateOfLegs state = mouseToScoring.get(selectedMouse).get(currentFrame);
+            if(state != null){
+                Measurement[] measurements = {state.getLeftLeg(), state.getRightLeg(), state.getBetweenLegs(), state.getBody()};
+                for(int i = 0; i < measurements.length; i++){
+                    Line ruler = rulers[i];
+                    Measurement measurement = measurements[i];
+                    if(measurement != null){
+                        ruler.setStartX(measurement.getStartX());
+                        ruler.setStartY(measurement.getStartY());
+                        ruler.setEndX(measurement.getEndX());
+                        ruler.setEndY(measurement.getEndY());
+                        ruler.setVisible(true);
+                    }
+                }
+            }
+        }
+
     }
 
     private void moveToFrame(int frame) {

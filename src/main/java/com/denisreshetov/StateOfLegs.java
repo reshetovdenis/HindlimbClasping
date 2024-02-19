@@ -1,5 +1,6 @@
 package com.denisreshetov;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +89,17 @@ public class StateOfLegs {
         } else {
             return state.toString();
         }
+    }
+    public static String label(StateOfLegs state) {
+        if (state != null) {
+            Double stretching = state.getStretchingPercent();
+            if(stretching != null){
+                NumberFormat nf = NumberFormat.getNumberInstance();
+                nf.setMaximumFractionDigits(0);
+                return nf.format(stretching);
+            }
+        }
+        return "NA";
     }
 
     public static StateOfLegs fromText(String text) {
