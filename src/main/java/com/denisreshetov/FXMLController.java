@@ -404,16 +404,20 @@ public class FXMLController {
     }
 
     private void handleMousePressed(MouseEvent event) {
-        currentRuler.setStartX(event.getX());
-        currentRuler.setStartY(event.getY());
-        currentRuler.setEndX(event.getX());
-        currentRuler.setEndY(event.getY());
-        currentRuler.setVisible(true); // Make the ruler visible when you start drawing
+        if(currentRuler != null){
+            currentRuler.setStartX(event.getX());
+            currentRuler.setStartY(event.getY());
+            currentRuler.setEndX(event.getX());
+            currentRuler.setEndY(event.getY());
+            currentRuler.setVisible(true);
+        }
     }
 
     private void handleMouseDragged(MouseEvent event) {
-        currentRuler.setEndX(event.getX());
-        currentRuler.setEndY(event.getY());
+        if(currentRuler != null) {
+            currentRuler.setEndX(event.getX());
+            currentRuler.setEndY(event.getY());
+        }
     }
 
     private void handleMouseReleased(MouseEvent event) {

@@ -134,7 +134,7 @@
                                     styleClass="wide-button"/>
                             <Button fx:id="left"
                                     text=""
-                                    onAction="#handleLeft" styleClass="selected-ruler-button">
+                                    onAction="#handleLeft" styleClass="unselected-ruler-button">
                                 <graphic>
                                     <ImageView>
                                         <Image url="@../../images/left.png"/>
