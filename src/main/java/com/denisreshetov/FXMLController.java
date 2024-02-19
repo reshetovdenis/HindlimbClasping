@@ -103,16 +103,22 @@ public class FXMLController {
     private TextField mouseIdInput;
 
     @FXML
-    private TextField angleInput;
-
-    @FXML
     private Button submitMouseIdButton;
 
     @FXML
     private Button rescore;
 
     @FXML
-    private Button submitAngle;
+    private Button left;
+
+    @FXML
+    private Button right;
+
+    @FXML
+    private Button both;
+
+    @FXML
+    private Button body;
 
     @FXML
     private Button naFrame;
@@ -223,6 +229,16 @@ public class FXMLController {
         moveToFrame(0);
         updateMiceTableView();
         updateProjectXML();
+    }
+
+    public void handleLeft(ActionEvent actionEvent) {
+    }
+
+    public void handleRight(ActionEvent actionEvent) {
+    }
+    public void handleBoth(ActionEvent actionEvent) {
+    }
+    public void handleBody(ActionEvent actionEvent) {
     }
 
 
@@ -350,12 +366,6 @@ public class FXMLController {
             }
         }
 
-        angleInput.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) {
-                handleSubmitAngle();
-            }
-        });
-
         scoringPane.setOnMousePressed(this::handleMousePressed);
         scoringPane.setOnMouseDragged(this::handleMouseDragged);
         scoringPane.setOnMouseReleased(this::handleMouseReleased);
@@ -414,7 +424,7 @@ public class FXMLController {
 
     private void refreshScoringTab() {
         frameButtons.getChildren().clear();
-        Button[] legButtons = {rescore, submitAngle, naFrame};
+        Button[] legButtons = {rescore, left,  right, both,  body, naFrame};
         scoringView.setVisible(false);
         noMouseSelectedLabel.setVisible(true);
         for (Button b : legButtons) {
@@ -454,7 +464,6 @@ public class FXMLController {
                     frameButtons.getChildren().add(button);
                 }
             }
-            angleInput.setText(getCurrentAngleText());
         }
     }
 
@@ -1037,42 +1046,6 @@ public class FXMLController {
             if (currentMouseIndex < miceTableView.getItems().size()) {
                 miceTableView.getSelectionModel().select(++currentMouseIndex);
             }
-        }
-    }
-
-    public void handleSubmitAngle() {
-        String angleTextValue = angleInput.getText();
-        Integer angleValue = null;
-        try {
-            angleValue = Integer.parseInt(angleTextValue);
-        } catch (Exception e){
-
-        }
-        if(angleValue > 180 || angleValue < 0){
-            angleValue = null;
-        }
-        if(angleValue != null){
-            StateOfLegs legState = mouseToScoring
-                    .computeIfAbsent(selectedMouse, k -> new HashMap<>())
-                    .computeIfAbsent(currentFrame, k -> new StateOfLegs());
-            if (legState == null) {//When was initially marked as NA
-                legState = new StateOfLegs();
-            }
-            legState.setAngle(angleValue);
-            moveToNextFrame();
-            refreshScoringTab();
-            updateMiceTableView();
-            updateProjectXML();
-        } else {
-            // Create confirmation dialog
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Wrong Angle");
-            alert.setHeaderText("Wrong Angle");
-            alert.setContentText("Only angles between 0 and 120 are allowed.\n" +
-                    "You've tried to submit: \""+angleInput.getText()+"\"");
-            ButtonType buttonOK = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-            alert.getButtonTypes().setAll(buttonOK);
-            Optional<ButtonType> result = alert.showAndWait();
         }
     }
 

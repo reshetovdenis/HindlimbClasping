@@ -129,17 +129,42 @@
                                     text="Rescore"
                                     onAction="#handleRescore"
                                     styleClass="wide-button"/>
-                            <ImageView>
-                                <Image url="@../../images/angle.png"/>
-                            </ImageView>
-                            <VBox alignment="CENTER" spacing="10">
-                                <TextField fx:id="angleInput"
-                                           promptText="Angle between legs"/>
-                                <Button fx:id="submitAngle"
-                                        text="Set angle"
-                                        onAction="#handleSubmitAngle"
-                                        styleClass="wide-button"/>
-                            </VBox>
+                            <Button fx:id="left"
+                                    text=""
+                                    onAction="#handleLeft">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/left.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
+                            <Button fx:id="right"
+                                    text=""
+                                    onAction="#handleRight">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/right.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
+                            <Button fx:id="both"
+                                    text=""
+                                    onAction="#handleBoth">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/both.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
+                            <Button fx:id="body"
+                                    text=""
+                                    onAction="#handleBody">
+                                <graphic>
+                                    <ImageView>
+                                        <Image url="@../../images/body.png"/>
+                                    </ImageView>
+                                </graphic>
+                            </Button>
                             <Button fx:id="naFrame"
                                     text="NA frame"
                                     onAction="#handleNAFrame"
