@@ -892,7 +892,7 @@ public class FXMLController {
                 updateVideoListView();
                 updateMiceTableView();
             } else {
-                // Handle the case where the XML file does not exist in the directory
+                writeXMLContent(xmlFile);
             }
         }
     }
@@ -967,7 +967,7 @@ public class FXMLController {
 
     private void updateProjectXML() {
         if (projectDirectory != null) {
-            File xmlFile = new File(projectDirectory, "clasping.xml");
+            File xmlFile = new File(projectDirectory, "20240515_backup_clasping.xml");
             writeXMLContent(xmlFile);
         }
     }
