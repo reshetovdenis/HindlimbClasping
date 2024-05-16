@@ -967,7 +967,7 @@ public class FXMLController {
 
     private void updateProjectXML() {
         if (projectDirectory != null) {
-            File xmlFile = new File(projectDirectory, "20240515_backup_clasping.xml");
+            File xmlFile = new File(projectDirectory, "clasping.xml");
             writeXMLContent(xmlFile);
         }
     }
