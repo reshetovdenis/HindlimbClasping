@@ -886,14 +886,32 @@ public class FXMLController {
             removeVideoButton.setDisable(false);
             removeMouseButton.setDisable(false);
             File xmlFile = new File(projectDirectory, "clasping.xml");
-            if (xmlFile.exists()) {
-                videoFiles.clear();
-                loadDataFromProjectXML(xmlFile);
-                updateVideoListView();
-                updateMiceTableView();
-            } else {
+            videoFiles.clear();
+            fileToMouseIdMap = new HashMap<>();
+            miceIds = new ArrayList<>();
+            mouseIdToFileMap = new HashMap<>();
+            mouseToScoring = new HashMap<>();
+            currentFrame = 0;
+            isFullScreen = false;
+            selectedVideo = null;
+            selectedMouse = null;
+            selectedVideoIndex = 0;
+            currentMouseIndex = null;
+            pendingSeekTime = null;
+            originalStage = null;
+            originalScene = null;
+            if(mediaPlayer != null){
+                mediaPlayer.dispose();
+            }
+            videoName.setText("");
+            timeLabel.setText("0.0 s");
+
+            if (!xmlFile.exists()) {
                 writeXMLContent(xmlFile);
             }
+            loadDataFromProjectXML(xmlFile);
+            updateVideoListView();
+            updateMiceTableView();
         }
     }
 
